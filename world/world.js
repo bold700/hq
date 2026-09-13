@@ -192,6 +192,25 @@
     wrap.add(obj); return wrap;
   }
   const tintClone = (tpl, tint) => { const o = tpl.clone(); o.traverse((n) => { if (n.isMesh && !n.material.map) n.material = goldMat(tint); }); return o; };
+  // Realistische rompen: per schip een eigen kleur uit een palet (gunmetal, staal, marine, verweerd, gebroken wit), metallic.
+  const HULLS = [0x8e949c, 0x6b7078, 0xb8bcc2, 0x3f4650, 0xd9d4c8, 0x5a5049, 0x7a8590, 0x4a4f58];
+  function hullClone(tpl, seed) {
+    const o = tpl.clone();
+    const base = new THREE.Color(HULLS[seed % HULLS.length]); const wear = ((seed >> 3) % 20) / 100;
+    const mat = new THREE.MeshStandardMaterial({ color: base.clone().multiplyScalar(0.9 + wear), metalness: 0.55 + ((seed >> 5) % 20) / 100, roughness: 0.42 + ((seed >> 7) % 25) / 100, emissive: 0x0a0c12, emissiveIntensity: 0.6 });
+    o.traverse((n) => { if (n.isMesh && !n.material.map) n.material = mat; });
+    return o;
+  }
+  // Baken: een klein lampje in de clusterkleur boven op het schip, met een gloed. Dit toont bij welk stelsel een schip hoort.
+  function addBeacon(obj, hex, size) {
+    const color = new THREE.Color(hex);
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(size * 0.055, 10, 10), new THREE.MeshBasicMaterial({ color: color.clone().lerp(new THREE.Color(0xffffff), 0.5) }));
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: dotTex, color, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false }));
+    glow.scale.setScalar(size * 0.34);
+    lamp.position.set(0, size * 0.3, -size * 0.12); glow.position.copy(lamp.position);
+    obj.add(lamp); obj.add(glow); obj.userData.beacon = { lamp, glow, phase: Math.random() * 6 };
+    return obj;
+  }
   (async () => {
     try {
       const manifest = await fetch("models/manifest.json", { cache: "no-store" }).then((r) => (r.ok ? r.json() : {}));
@@ -206,11 +225,11 @@
             scene.add(group); core.visible = false; halo.scale.setScalar(1.35); models.core = group;
           } else if (entry.role === "agent") {
             models.agent = normalizeModel(gltf.scene, 1.5, true);
-            for (const k of Object.keys(clusterHubs)) for (const m of clusterHubs[k].agentMeshes) { m.add(tintClone(models.agent)); m.material.visible = false; m.userData.ship = true; }
+            for (const k of Object.keys(clusterHubs)) for (const m of clusterHubs[k].agentMeshes) { const f = addBeacon(hullClone(models.agent, hashStr(k + m.userData.name)), clusters[k].color, 1.5); m.add(f); m.material.visible = false; m.userData.ship = f; }
           } else if (entry.role === "cluster") {
             models.cluster = normalizeModel(gltf.scene, 3.4, true);
             for (const k of Object.keys(clusterHubs)) {
-              const hub = clusterHubs[k]; const ship = tintClone(models.cluster, clusters[k].color);
+              const hub = clusterHubs[k]; const ship = addBeacon(hullClone(models.cluster, hashStr("moeder" + k)), clusters[k].color, 3.4);
               ship.position.copy(hub.center).add(new THREE.Vector3(0, 1.1, 0)); ship.rotation.y = Math.random() * Math.PI * 2; scene.add(ship); hub.ship = ship;
             }
           } else if (entry.role === "project") {
@@ -302,7 +321,9 @@
     const link = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), center]), new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.18 }));
     scene.add(link);
     const neb = new THREE.Sprite(new THREE.SpriteMaterial({ map: nebulaTexture(c.color), transparent: true, opacity: 0.32, depthWrite: false, blending: THREE.AdditiveBlending }));
-    neb.position.copy(center).multiplyScalar(1.45).add(new THREE.Vector3(0, -7 + Math.sin(i * 2.3) * 5, 0)); neb.scale.setScalar(48 + (i % 3) * 8); scene.add(neb); nebulae.push(neb);
+    // ver naar achteren en vaag: sfeer op de achtergrond, niet in de weg van de vloot
+    neb.material.opacity = 0.11;
+    neb.position.copy(center).multiplyScalar(3.1).add(new THREE.Vector3(0, -26 + Math.sin(i * 2.3) * 6, 0)); neb.scale.setScalar(110 + (i % 3) * 18); scene.add(neb); nebulae.push(neb);
     const members = projects.filter((p) => p.cluster === k);
     const label = addLabel(`${c.label} · ${members.length}`, ring, "cluster", c.color, 2.9);
     clusterHubs[k] = { center, color, ring, members, label, agentMeshes: [], group: new THREE.Group() };
@@ -366,7 +387,7 @@
     if (p.mesh && p.mesh.material.emissive) { p.mesh.material.emissive.copy(hub.color); p.mesh.material.color.copy(hub.color.clone().lerp(new THREE.Color(0xffffff), heat(p.days) * 0.45)); }
     for (const e of p.extras || []) if (e.material.color && e.geometry.type !== "TorusGeometry") e.material.color.copy(hub.color);
     if (p.mesh && p.mesh.material.map) { p.mesh.material.map = planetTexture(clusters[k].color, planetType(p.name), p.name); p.mesh.material.needsUpdate = true; }
-    if (p.mesh && p.mesh.userData.ship) p.mesh.userData.ship.traverse((n) => { if (n.isMesh && !n.material.map) n.material = goldMat(clusters[k].color); });
+    if (p.mesh && p.mesh.userData.ship && p.mesh.userData.ship.userData.beacon) { const b = p.mesh.userData.ship.userData.beacon; const c = new THREE.Color(clusters[k].color); b.lamp.material.color.copy(c).lerp(new THREE.Color(0xffffff), 0.5); b.glow.material.color.copy(c); }
     if (linksReady) rebuildLinks();
     moves.push({ p, from: p.mesh.position.clone(), to, t0: performance.now(), dur: reduceMotion ? 1 : 2200, arc: 6 });
     if (p.li) p.li.style.setProperty("--c", clusters[k].color);
@@ -376,8 +397,9 @@
   function attachShip(p) {
     if (!models.project || !p.mesh || p.mesh.userData.ship) return;
     const hub = clusterHubs[p.cluster];
-    const ship = tintClone(models.project, p.status === "archived" ? "#5d6580" : clusters[p.cluster].color);
-    const len = 0.9 + heat(p.days) * 2.3; ship.scale.setScalar(len);
+    const len = 0.9 + heat(p.days) * 2.3;
+    const ship = addBeacon(hullClone(models.project, hashStr(p.name)), p.status === "archived" ? "#5d6580" : clusters[p.cluster].color, 1);
+    ship.scale.setScalar(len);
     p.mesh.add(ship); p.mesh.material.visible = false; p.mesh.userData.ship = ship; p.mesh.userData.spin = 0; p.mesh.rotation.set(0, 0, 0);
     for (const e of p.extras || []) if (e.geometry.type !== "TorusGeometry") e.visible = false; // dampkring en ring horen bij planeten
     // koers: in formatie, dwars op de lijn naar het moederschip, met een eigen kleine afwijking
@@ -770,7 +792,11 @@
     core.scale.setScalar(1 + Math.sin(s * 1.4) * 0.03); halo.scale.setScalar((models.core ? 1.35 : 1) * (1 + Math.sin(s * 1.4 + 1) * 0.08));
     if (models.core) models.core.rotation.y = s * 0.12;
     belt.rotation.y = s * 0.012;
-    for (const m of pickables) if (m.userData.kind === "project") { if (m.userData.spin) m.rotation.y = s * m.userData.spin; if (m.userData.ship) m.userData.ship.position.y = Math.sin(s * 0.9 + m.userData.bob) * 0.08; }
+    for (const m of pickables) {
+      if (m.userData.kind === "project") { if (m.userData.spin) m.rotation.y = s * m.userData.spin; if (m.userData.ship) m.userData.ship.position.y = Math.sin(s * 0.9 + m.userData.bob) * 0.08; }
+      const b = m.userData.ship && m.userData.ship.userData && m.userData.ship.userData.beacon; if (b) b.glow.material.opacity = 0.4 + Math.sin(s * 2.2 + b.phase) * 0.2;
+    }
+    for (const k of clusterKeys) { const b = clusterHubs[k].ship && clusterHubs[k].ship.userData.beacon; if (b) b.glow.material.opacity = 0.5 + Math.sin(s * 1.6 + b.phase) * 0.2; }
     if (linksReady) updateLinks(s);
     for (const ring of busyRings.values()) { ring.rotation.z = s * 1.2; ring.material.opacity = 0.55 + Math.sin(s * 3) * 0.3; }
     // sterren die verhuizen of verschijnen
