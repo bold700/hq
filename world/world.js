@@ -189,12 +189,12 @@
 
   // Voortgang van taken: een run is "bezig" tot er een claude/-PR op GitHub verschijnt die na de start is geopend.
   const RUN_TIMEOUT = 90 * 60000;
-  const isRunning = (r) => r.status === "running" && Date.now() - Date.parse(r.started_at) < RUN_TIMEOUT;
+  // Taken zonder status komen van vóór deze weergave; die tellen ook als "bezig" tot er een PR gevonden is.
+  const isRunning = (r) => r.status !== "done" && Date.now() - Date.parse(r.started_at) < RUN_TIMEOUT;
   function runStatus(r) {
     if (r.status === "done") return `<a class="st ok" href="${esc(r.pr.url)}" target="_blank" rel="noopener" title="${esc(r.pr.title)}">✓ PR #${r.pr.number}</a>`;
     if (isRunning(r)) return `<span class="st busy" title="Claude is bezig; open de sessie om mee te kijken">⟳ bezig · ${elapsed(r.started_at)}</span>`;
-    if (r.status === "running") return `<a class="st" href="${esc(r.session_url)}" target="_blank" rel="noopener">geen PR gezien · open sessie</a>`;
-    return "";
+    return `<a class="st" href="${esc(r.session_url)}" target="_blank" rel="noopener">geen PR gezien · open sessie</a>`;
   }
   async function pollRuns() {
     const open = runs.filter(isRunning);
