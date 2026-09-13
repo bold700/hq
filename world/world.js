@@ -89,11 +89,50 @@
     scene.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0x9aa7d0, size: 0.35, sizeAttenuation: true, transparent: true, opacity: 0.8 })));
   }
 
-  // HQ-kern
+  // HQ-kern: een gouden zon, of het 3D-station uit models/ als dat er is (Meshy)
   const core = new THREE.Mesh(new THREE.SphereGeometry(1.6, 48, 48), new THREE.MeshStandardMaterial({ color: 0xffd27a, emissive: 0xffb84a, emissiveIntensity: 0.9, roughness: 0.4 }));
   scene.add(core);
   const halo = new THREE.Mesh(new THREE.SphereGeometry(2.6, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffd27a, transparent: true, opacity: 0.08 }));
   scene.add(halo);
+  const models = { core: null };
+  (async () => {
+    try {
+      const manifest = await fetch("models/manifest.json", { cache: "no-store" }).then((r) => (r.ok ? r.json() : {}));
+      const entry = Object.values(manifest).find((m) => m.role === "core");
+      if (!entry || !THREE.GLTFLoader) return;
+      new THREE.GLTFLoader().load(`models/${entry.file}`, (gltf) => {
+        const obj = gltf.scene;
+        const box = new THREE.Box3().setFromObject(obj); const size = box.getSize(new THREE.Vector3()); const c = box.getCenter(new THREE.Vector3());
+        const s = 4.2 / Math.max(size.x, size.y, size.z);
+        obj.scale.setScalar(s); obj.position.sub(c.multiplyScalar(s));
+        obj.traverse((n) => { if (n.isMesh && n.material) { n.material.roughness = Math.min(0.8, n.material.roughness ?? 0.6); n.material.emissive = n.material.emissive || new THREE.Color(0x000000); } });
+        const group = new THREE.Group(); group.add(obj); scene.add(group);
+        core.visible = false; halo.scale.setScalar(1.35);
+        models.core = group;
+      }, undefined, () => {});
+    } catch {}
+  })();
+
+  // Planeet-look voor de projectbollen: procedurele textuur per clusterkleur (gratis, geen assets nodig)
+  const planetTextures = {};
+  function planetTexture(hex) {
+    if (planetTextures[hex]) return planetTextures[hex];
+    const w = 256, h = 128, cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+    const ctx = cv.getContext("2d"); const base = new THREE.Color(hex);
+    const img = ctx.createImageData(w, h); const d = img.data;
+    let seed = parseInt(hex.slice(1), 16) || 1; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const bands = 3 + Math.floor(rnd() * 3), offs = Array.from({ length: 4 }, () => rnd() * Math.PI * 2);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const u = x / w, v = y / h;
+      let n = 0.5 + 0.22 * Math.sin(v * Math.PI * bands + Math.sin(u * Math.PI * 2 + offs[0]) * 0.8 + offs[1]) + 0.14 * Math.sin(u * Math.PI * 6 + v * 5 + offs[2]) + 0.1 * Math.sin((u + v) * 17 + offs[3]);
+      n = Math.max(0, Math.min(1, n));
+      const i = (y * w + x) * 4;
+      d[i] = 255 * base.r * (0.55 + 0.6 * n); d[i + 1] = 255 * base.g * (0.55 + 0.6 * n); d[i + 2] = 255 * base.b * (0.6 + 0.5 * n); d[i + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    const tex = new THREE.CanvasTexture(cv); tex.wrapS = THREE.RepeatWrapping;
+    return (planetTextures[hex] = tex);
+  }
 
   const labels = $("#labels");
   const labelEls = []; // {el, obj, offsetY}
@@ -151,10 +190,15 @@
     const size = 0.28 + h * 0.75;
     const mat = p.status === "archived"
       ? new THREE.MeshBasicMaterial({ color: 0x5d6580, wireframe: true })
-      : new THREE.MeshStandardMaterial({ color: color.clone().lerp(new THREE.Color(0xffffff), h * 0.45), emissive: color, emissiveIntensity: 0.15 + h * 1.1, roughness: 0.45 });
-    const m = new THREE.Mesh(new THREE.SphereGeometry(size, 24, 24), mat);
-    m.position.copy(animateFrom || pos); m.userData = { kind: "project", p, baseScale: 1 };
+      : new THREE.MeshStandardMaterial({ map: planetTexture(clusters[k].color), color: new THREE.Color(0xffffff).lerp(color, 0.25), emissive: color, emissiveIntensity: 0.08 + h * 0.7, roughness: 0.75, metalness: 0.05 });
+    const m = new THREE.Mesh(new THREE.SphereGeometry(size, 32, 32), mat);
+    m.position.copy(animateFrom || pos); m.userData = { kind: "project", p, baseScale: 1, spin: 0.08 + Math.random() * 0.25, tilt: (Math.random() - 0.5) * 0.6 };
+    m.rotation.z = m.userData.tilt;
     scene.add(m); pickables.push(m); p.mesh = m; p.extras = [];
+    if (p.status !== "archived" && (p.name.length % 4 === 0)) { // af en toe een ring, deterministisch per naam
+      const ringM = new THREE.Mesh(new THREE.RingGeometry(size * 1.45, size * 2.1, 48), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.35, side: THREE.DoubleSide }));
+      ringM.position.copy(m.position); ringM.rotation.x = Math.PI / 2.4 + m.userData.tilt; scene.add(ringM); p.extras.push(ringM);
+    }
     if (h >= 1) { // gloed voor verse repos
       const g = new THREE.Mesh(new THREE.SphereGeometry(size * 1.9, 16, 16), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.12 }));
       g.position.copy(m.position); scene.add(g); p.extras.push(g);
@@ -174,7 +218,8 @@
     p.cluster = k;
     const to = starPos(k, hub.members.length - 1, heat(p.days));
     if (p.mesh && p.mesh.material.emissive) { p.mesh.material.emissive.copy(hub.color); p.mesh.material.color.copy(hub.color.clone().lerp(new THREE.Color(0xffffff), heat(p.days) * 0.45)); }
-    for (const e of p.extras || []) if (e.material.color && e.geometry.type === "SphereGeometry") e.material.color.copy(hub.color);
+    for (const e of p.extras || []) if (e.material.color && e.geometry.type !== "TorusGeometry") e.material.color.copy(hub.color);
+    if (p.mesh && p.mesh.material.map) { p.mesh.material.map = planetTexture(clusters[k].color); p.mesh.material.needsUpdate = true; }
     moves.push({ p, from: p.mesh.position.clone(), to, t0: performance.now(), dur: reduceMotion ? 1 : 2200, arc: 6 });
     if (p.li) p.li.style.setProperty("--c", clusters[k].color);
     updateClusterCounts();
@@ -506,7 +551,9 @@
       if (k >= 1) fly = null;
     }
     controls.update();
-    core.scale.setScalar(1 + Math.sin(s * 1.4) * 0.03); halo.scale.setScalar(1 + Math.sin(s * 1.4 + 1) * 0.08);
+    core.scale.setScalar(1 + Math.sin(s * 1.4) * 0.03); halo.scale.setScalar((models.core ? 1.35 : 1) * (1 + Math.sin(s * 1.4 + 1) * 0.08));
+    if (models.core) models.core.rotation.y = s * 0.12;
+    for (const m of pickables) if (m.userData.kind === "project" && m.userData.spin) m.rotation.y = s * m.userData.spin;
     for (const ring of busyRings.values()) { ring.rotation.z = s * 1.2; ring.material.opacity = 0.55 + Math.sin(s * 3) * 0.3; }
     // sterren die verhuizen of verschijnen
     for (let i = moves.length - 1; i >= 0; i--) {
