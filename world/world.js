@@ -183,8 +183,56 @@
     if (selected) renderTask(selected);
   }
   const relTime = (iso) => { const d = (Date.now() - Date.parse(iso)) / DAY; return d < 1 ? "vandaag" : `${Math.round(d)} d geleden`; };
+  const elapsed = (iso) => { const m = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60000)); return m < 1 ? "net gestart" : m < 60 ? `${m} min` : `${Math.round(m / 60)} u`; };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const readme = `https://github.com/${owner}/hq/blob/main/routines/README.md`;
+
+  // Voortgang van taken: een run is "bezig" tot er een claude/-PR op GitHub verschijnt die na de start is geopend.
+  const RUN_TIMEOUT = 90 * 60000;
+  const isRunning = (r) => r.status === "running" && Date.now() - Date.parse(r.started_at) < RUN_TIMEOUT;
+  function runStatus(r) {
+    if (r.status === "done") return `<a class="st ok" href="${esc(r.pr.url)}" target="_blank" rel="noopener" title="${esc(r.pr.title)}">✓ PR #${r.pr.number}</a>`;
+    if (isRunning(r)) return `<span class="st busy" title="Claude is bezig; open de sessie om mee te kijken">⟳ bezig · ${elapsed(r.started_at)}</span>`;
+    if (r.status === "running") return `<a class="st" href="${esc(r.session_url)}" target="_blank" rel="noopener">geen PR gezien · open sessie</a>`;
+    return "";
+  }
+  async function pollRuns() {
+    const open = runs.filter(isRunning);
+    const byProject = new Map();
+    for (const r of open) if (!byProject.has(r.project)) byProject.set(r.project, []);
+    for (const r of open) byProject.get(r.project).push(r);
+    for (const [project, list] of byProject) {
+      try {
+        const res = await fetch(`https://api.github.com/repos/${owner}/${project}/pulls?state=all&sort=created&direction=desc&per_page=15`, { headers: { Accept: "application/vnd.github+json" } });
+        if (!res.ok) continue;
+        const prs = await res.json();
+        for (const r of list) {
+          const since = Date.parse(r.started_at) - 2 * 60000;
+          const pr = prs.find((x) => x.head && /^claude\//.test(x.head.ref) && Date.parse(x.created_at) >= since && !runs.some((o) => o !== r && o.pr && o.pr.number === x.number));
+          if (pr) { r.status = "done"; r.pr = { number: pr.number, url: pr.html_url, title: pr.title }; }
+        }
+      } catch {}
+    }
+    store.set("hq.runs", runs);
+    syncBusy();
+    if (selected) renderTask(selected);
+  }
+  const busyRings = new Map(); // projectnaam -> mesh
+  function syncBusy() {
+    const busy = new Set(runs.filter(isRunning).map((r) => r.project));
+    for (const p of projects) {
+      if (p.li) p.li.classList.toggle("busy", busy.has(p.name));
+      const has = busyRings.has(p.name);
+      if (busy.has(p.name) && !has && p.mesh) {
+        const r = p.mesh.geometry.parameters.radius;
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(r * 2.2, 0.06, 8, 48), new THREE.MeshBasicMaterial({ color: 0xffd27a, transparent: true, opacity: 0.85 }));
+        ring.position.copy(p.mesh.position); ring.rotation.x = Math.PI / 3; scene.add(ring); busyRings.set(p.name, ring);
+      } else if (!busy.has(p.name) && has) {
+        scene.remove(busyRings.get(p.name)); busyRings.delete(p.name);
+      }
+    }
+  }
+  setInterval(() => { if (runs.some(isRunning)) pollRuns(); else if (selected) renderTask(selected); }, 90000);
   function renderTask(p) {
     const { api, pass } = taskCfg();
     const hint = $("#task-hint"), form = $("#task-form"), st = $("#task-status");
@@ -200,7 +248,9 @@
       form.hidden = false;
     }
     const mine = runs.filter((r) => r.project === p.name).slice(0, 5);
-    $("#runs").innerHTML = mine.map((r) => `<li><span><a href="${esc(r.session_url)}" target="_blank" rel="noopener">${esc(r.text)}</a></span><time>${relTime(r.started_at)}</time></li>`).join("");
+    const busyHere = mine.filter(isRunning).length;
+    if (busyHere && !form.hidden) hint.innerHTML = `<b>Claude is bezig</b> met ${busyHere === 1 ? "een taak" : busyHere + " taken"} in dit project. Zodra de draft PR er is, verschijnt hieronder een link. Je kunt intussen een nieuwe taak sturen.`;
+    $("#runs").innerHTML = mine.map((r) => `<li><span><a href="${esc(r.session_url)}" target="_blank" rel="noopener">${esc(r.text)}</a></span>${runStatus(r) || `<time>${relTime(r.started_at)}</time>`}</li>`).join("");
   }
   $("#task-form").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -210,11 +260,11 @@
     btn.disabled = true; st.className = "task-status"; st.textContent = "Starten…";
     try {
       const r = await callApi("POST", { project: selected.name, text });
-      runs.unshift({ project: selected.name, text, session_url: r.session_url, started_at: r.started_at || new Date().toISOString() });
+      runs.unshift({ project: selected.name, text, session_url: r.session_url, started_at: r.started_at || new Date().toISOString(), status: "running" });
       runs.splice(30); store.set("hq.runs", runs);
       $("#task-text").value = "";
-      renderTask(selected);
-      st.className = "task-status ok"; st.innerHTML = `Gestart · <a href="${esc(r.session_url)}" target="_blank" rel="noopener">open sessie</a>`;
+      syncBusy(); renderTask(selected);
+      st.className = "task-status ok"; st.innerHTML = `Gestart · Claude werkt nu · <a href="${esc(r.session_url)}" target="_blank" rel="noopener">kijk mee</a>`;
     } catch (err) {
       st.className = "task-status err"; st.textContent = err.message;
     } finally { btn.disabled = false; }
@@ -352,6 +402,7 @@
     }
     controls.update();
     core.scale.setScalar(1 + Math.sin(s * 1.4) * 0.03); halo.scale.setScalar(1 + Math.sin(s * 1.4 + 1) * 0.08);
+    for (const ring of busyRings.values()) { ring.rotation.z = s * 1.2; ring.material.opacity = 0.55 + Math.sin(s * 3) * 0.3; }
     for (const k of clusterKeys) {
       const hub = clusterHubs[k];
       for (const m of hub.agentMeshes) {
@@ -377,6 +428,8 @@
   }
   requestAnimationFrame(tick);
   loadRoutines();
+  syncBusy();
+  if (runs.some(isRunning)) pollRuns();
 })().catch((err) => {
   document.body.insertAdjacentHTML("beforeend", `<pre style="position:fixed;inset:auto 16px 16px;padding:12px;background:#2a1010;color:#ffd2d2;border-radius:8px;font:12px/1.4 monospace;white-space:pre-wrap">De wereld kon niet laden: ${err.message}\nControleer of data/repos.json en data/registry.json bestaan.</pre>`);
   console.error(err);

@@ -172,6 +172,12 @@ body {
 .runs li { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; font-size: 12px; padding: 6px 8px; border-radius: 6px; background: var(--ground-2); border: 1px solid var(--line); }
 .runs li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .runs li time { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.runs .st { font-family: var(--mono); font-size: 10px; white-space: nowrap; color: var(--muted); text-decoration: none; }
+.runs .st.ok { color: #3ddc97; }
+.runs .st.busy { color: var(--accent); animation: pulse 1.6s ease-in-out infinite; }
+.projects li.busy i { animation: pulse 1.6s ease-in-out infinite; box-shadow: 0 0 8px var(--c); }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .runs .st.busy, .projects li.busy i { animation: none; } }
 dialog { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--text); padding: 20px; width: min(420px, calc(100% - 32px)); backdrop-filter: blur(10px); }
 dialog::backdrop { background: rgba(4, 6, 14, .6); }
 dialog h2 { margin: 0 0 6px; font-family: var(--display); font-size: 18px; }
