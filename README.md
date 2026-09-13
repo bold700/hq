@@ -42,4 +42,4 @@ Of handmatig: kopieer `templates/settings.json` naar `.claude/settings.json` in 
 cd world && python3 -m http.server 8000
 ```
 
-Open http://localhost:8000. Lokaal leest de pagina `data/repos.json` en `data/registry.json`; in CI worden die vers gebouwd.
+Open http://localhost:8000. De pagina haalt de repolijst live op uit de GitHub API en vult aan met `data/repos.json` (privé repos, fallback). `data/registry.json` wordt bij elke deploy ververst uit `registry.json`. Pages-bron: GitHub Actions; de map `world/` is de site-root.

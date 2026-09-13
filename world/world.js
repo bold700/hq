@@ -6,11 +6,23 @@
   // ---------- data ----------
   async function loadData() {
     if (window.HQ_DATA) return window.HQ_DATA;
-    const [repos, registry] = await Promise.all([
-      fetch("data/repos.json").then((r) => r.json()),
-      fetch("data/registry.json").then((r) => r.json()),
-    ]);
-    return { repos, registry };
+    const json = (u) => fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`${u}: ${r.status}`))));
+    // Registry: de kopie in data/ (wordt bij elke deploy ververst), anders uit de repo-root.
+    const registry = await json("data/registry.json").catch(() => json("../registry.json"));
+    // Repos: live uit de GitHub API (publiek), aangevuld met de snapshot (privé en beschrijvingen).
+    const snapshot = await json("data/repos.json").catch(() => ({ repos: [] }));
+    let live = null;
+    try {
+      const owner = registry.owner || "bold700";
+      const r = await fetch(`https://api.github.com/users/${owner}/repos?per_page=100&sort=pushed`, { headers: { Accept: "application/vnd.github+json" } });
+      if (r.ok) live = (await r.json()).map((x) => ({ name: x.name, description: x.description || "", language: x.language || "", homepage: x.homepage || "", pushed_at: x.pushed_at, private: x.private, archived: x.archived, open_issues: x.open_issues_count, stars: x.stargazers_count }));
+    } catch {}
+    if (live) {
+      const seen = new Set(live.map((x) => x.name));
+      for (const x of snapshot.repos || []) if (!seen.has(x.name)) live.push({ ...x, stale: true });
+      return { repos: { generated_at: new Date().toISOString(), source: "GitHub API (live)", repos: live }, registry };
+    }
+    return { repos: snapshot, registry };
   }
   const { repos: snapshot, registry } = await loadData();
   const owner = registry.owner || "bold700";

@@ -1,5 +1,7 @@
 name: Publiceer 3D-wereld
 
+# Settings → Pages → Source: GitHub Actions. De map world/ wordt de site-root: https://bold700.github.io/hq/
+
 on:
   push:
     branches: [main]
@@ -31,8 +33,6 @@ jobs:
       - name: Registry meenemen
         run: cp registry.json world/data/registry.json
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: world
