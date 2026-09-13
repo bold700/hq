@@ -29,6 +29,7 @@
     "penpot-design-assistant":{ "cluster": "penpot", "description": "AI-assistent in Penpot", "status": "paused" },
     "Pen2AE":                 { "cluster": "penpot", "description": "Penpot naar After Effects", "status": "paused" },
     "material-symbols-font-plugin": { "cluster": "penpot", "description": "Material Symbols in Penpot", "status": "paused" },
+    "Fonticon":               { "cluster": "penpot", "description": "Icon-font plugin voor Penpot", "status": "paused" },
     "Token-Checker":          { "cluster": "penpot", "description": "Controleert design tokens", "status": "paused" },
     "designpartner":          { "cluster": "penpot", "description": "Design-partner tooling", "status": "active" },
 
@@ -44,7 +45,6 @@
     "privacy":                { "cluster": "bold700", "description": "Privacyverklaringen voor de apps", "status": "paused" },
     "icns":                   { "cluster": "bold700", "description": "Iconenset", "status": "paused" },
     "iKons":                  { "cluster": "bold700", "description": "Iconenset", "status": "paused" },
-    "Fonticon":               { "cluster": "bold700", "description": "Icon-font tooling", "status": "paused" },
 
     "vastgoedagent":          { "cluster": "klanten", "description": "Vastgoed-agent", "status": "active" },
     "margot-schuijff":        { "cluster": "klanten", "description": "Klantsite", "status": "paused" },
