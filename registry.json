@@ -31,6 +31,7 @@
     "material-symbols-font-plugin": { "cluster": "penpot", "description": "Material Symbols in Penpot", "status": "paused" },
     "Token-Checker":          { "cluster": "penpot", "description": "Controleert design tokens", "status": "paused" },
     "designpartner":          { "cluster": "penpot", "description": "Design-partner tooling", "status": "active" },
+    "Fonticon":               { "cluster": "penpot", "description": "Icon-font tooling", "status": "paused" },
 
     "bold700-site":           { "cluster": "bold700", "description": "Website van bold700", "status": "active", "agents": ["ux-reviewer"] },
     "bold700-ux-review-app":  { "cluster": "bold700", "description": "UX-review app", "status": "active" },
@@ -44,7 +45,6 @@
     "privacy":                { "cluster": "bold700", "description": "Privacyverklaringen voor de apps", "status": "paused" },
     "icns":                   { "cluster": "bold700", "description": "Iconenset", "status": "paused" },
     "iKons":                  { "cluster": "bold700", "description": "Iconenset", "status": "paused" },
-    "Fonticon":               { "cluster": "bold700", "description": "Icon-font tooling", "status": "paused" },
 
     "vastgoedagent":          { "cluster": "klanten", "description": "Vastgoed-agent", "status": "active" },
     "margot-schuijff":        { "cluster": "klanten", "description": "Klantsite", "status": "paused" },
