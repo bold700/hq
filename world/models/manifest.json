@@ -46,12 +46,12 @@
   "hq-deathstar": {
     "file": "hq-deathstar.glb",
     "thumb": "hq-deathstar.png",
-    "mode": "preview",
-    "prompt": "massive spherical space battle station inspired by the Death Star, moon-sized sphere with a large concave superlaser dish set into the upper hemisphere, deep equatorial trench, surface covered in panels, towers and greebles, low-poly stylized sci-fi game asset, no background",
+    "mode": "refine",
+    "prompt": "massive spherical space battle station, grey metallic hull plating with panel seams, weathered steel, subtle glowing windows and lights, deep equatorial trench, large concave superlaser dish",
     "preview_task_id": "01a09c6a-b43d-74d3-9241-31d51a988919",
-    "task_id": "01a09c6a-b43d-74d3-9241-31d51a988919",
-    "bytes": 859760,
-    "generated_at": "2026-09-13T20:18:36.942Z",
+    "task_id": "01a09c6f-be37-7506-ae5e-1c41a71c711c",
+    "bytes": 3965648,
+    "generated_at": "2026-09-13T20:23:46.155Z",
     "role": "core",
     "size": 7.5,
     "tilt": -0.35
