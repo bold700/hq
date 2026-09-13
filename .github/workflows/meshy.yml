@@ -1,0 +1,44 @@
+name: Genereer 3D-model (Meshy)
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Bestandsnaam (bijv. hq-station)"
+        required: true
+      prompt:
+        description: "Beschrijving van het model"
+        required: true
+      role:
+        description: "Rol in de wereld: core, cluster:<sleutel>, agent, of leeg"
+        default: ""
+      mode:
+        description: "preview (goedkoop) of refine (textuur, duurder)"
+        default: "preview"
+      polycount:
+        description: "Doel-aantal polygonen"
+        default: "6000"
+
+permissions:
+  contents: write
+
+jobs:
+  meshy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Model genereren
+        env:
+          MESHY_API_KEY: ${{ secrets.MESHY_API_KEY }}
+        run: node scripts/meshy.mjs --name "${{ inputs.name }}" --prompt "${{ inputs.prompt }}" --role "${{ inputs.role }}" --mode "${{ inputs.mode }}" --polycount "${{ inputs.polycount }}"
+      - name: Committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add world/models
+          git commit -m "3D-model: ${{ inputs.name }} (${{ inputs.mode }})"
+          git pull --rebase origin main
+          git push
