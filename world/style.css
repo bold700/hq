@@ -175,6 +175,15 @@ body {
 .runs .st { font-family: var(--mono); font-size: 10px; white-space: nowrap; color: var(--muted); text-decoration: none; }
 .runs .st.ok { color: #3ddc97; }
 .runs .st.wait { color: var(--accent); text-decoration: underline; }
+.toast {
+  position: fixed; left: 50%; bottom: 52px; z-index: 6; transform: translate(-50%, 12px);
+  max-width: min(560px, calc(100% - 32px)); padding: 10px 16px; border-radius: 8px;
+  background: var(--panel); border: 1px solid var(--accent); color: var(--text); font-size: 13px;
+  box-shadow: 0 0 24px rgba(255, 210, 122, .18); backdrop-filter: blur(10px);
+  opacity: 0; transition: opacity .3s, transform .3s; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@media (max-width: 760px) { .toast { bottom: auto; top: 64px; } }
 .runs .st.busy { color: var(--accent); animation: pulse 1.6s ease-in-out infinite; }
 .projects li.busy i { animation: pulse 1.6s ease-in-out infinite; box-shadow: 0 0 8px var(--c); }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }

@@ -108,6 +108,8 @@
   const pickables = []; // meshes with userData.kind
   const clusterHubs = {};
   const R = 26;
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  const moves = []; // lopende verplaatsingen van sterren
   clusterKeys.forEach((k, i) => {
     const c = clusters[k];
     const ang = (i / clusterKeys.length) * Math.PI * 2 - Math.PI / 2;
@@ -120,8 +122,8 @@
     const link = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), center]), new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.18 }));
     scene.add(link);
     const members = projects.filter((p) => p.cluster === k);
-    addLabel(`${c.label} · ${members.length}`, ring, "cluster", c.color, 2.9);
-    clusterHubs[k] = { center, color, ring, members, agentMeshes: [], group: new THREE.Group() };
+    const label = addLabel(`${c.label} · ${members.length}`, ring, "cluster", c.color, 2.9);
+    clusterHubs[k] = { center, color, ring, members, label, agentMeshes: [], group: new THREE.Group() };
     scene.add(clusterHubs[k].group);
 
     // agents als satellieten rond de ring
@@ -133,36 +135,67 @@
     });
 
     // repos in een spiraal (zonnebloem) rond de ring
-    const golden = Math.PI * (3 - Math.sqrt(5));
-    members.forEach((p, j) => {
-      const h = heat(p.days);
-      const rr = 3.6 + Math.sqrt(j + 0.5) * 1.55;
-      const t = j * golden;
-      const pos = new THREE.Vector3(center.x + Math.cos(t) * rr, center.y + (h - 0.4) * 1.6 + Math.sin(j) * 0.3, center.z + Math.sin(t) * rr);
-      const size = 0.28 + h * 0.75;
-      const mat = p.status === "archived"
-        ? new THREE.MeshBasicMaterial({ color: 0x5d6580, wireframe: true })
-        : new THREE.MeshStandardMaterial({ color: color.clone().lerp(new THREE.Color(0xffffff), h * 0.45), emissive: color, emissiveIntensity: 0.15 + h * 1.1, roughness: 0.45 });
-      const m = new THREE.Mesh(new THREE.SphereGeometry(size, 24, 24), mat);
-      m.position.copy(pos); m.userData = { kind: "project", p, baseScale: 1 };
-      scene.add(m); pickables.push(m); p.mesh = m;
-      if (h >= 1) { // gloed voor verse repos
-        const g = new THREE.Mesh(new THREE.SphereGeometry(size * 1.9, 16, 16), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.12 }));
-        g.position.copy(pos); scene.add(g);
-      }
-      if (p.private) {
-        const lock = new THREE.Mesh(new THREE.TorusGeometry(size * 1.35, 0.035, 6, 32), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35 }));
-        lock.position.copy(pos); lock.rotation.x = Math.PI / 2; scene.add(lock);
-      }
-    });
+    members.forEach((p, j) => makeStar(p, k, j));
   });
+
+  // Positie van de j-de ster in cluster k (zonnebloemspiraal), en het maken/verplaatsen van sterren.
+  function starPos(k, j, h) {
+    const { center } = clusterHubs[k];
+    const rr = 3.6 + Math.sqrt(j + 0.5) * 1.55, t = j * golden;
+    return new THREE.Vector3(center.x + Math.cos(t) * rr, center.y + (h - 0.4) * 1.6 + Math.sin(j) * 0.3, center.z + Math.sin(t) * rr);
+  }
+  function makeStar(p, k, j, animateFrom) {
+    const { color } = clusterHubs[k];
+    const h = heat(p.days);
+    const pos = starPos(k, j, h);
+    const size = 0.28 + h * 0.75;
+    const mat = p.status === "archived"
+      ? new THREE.MeshBasicMaterial({ color: 0x5d6580, wireframe: true })
+      : new THREE.MeshStandardMaterial({ color: color.clone().lerp(new THREE.Color(0xffffff), h * 0.45), emissive: color, emissiveIntensity: 0.15 + h * 1.1, roughness: 0.45 });
+    const m = new THREE.Mesh(new THREE.SphereGeometry(size, 24, 24), mat);
+    m.position.copy(animateFrom || pos); m.userData = { kind: "project", p, baseScale: 1 };
+    scene.add(m); pickables.push(m); p.mesh = m; p.extras = [];
+    if (h >= 1) { // gloed voor verse repos
+      const g = new THREE.Mesh(new THREE.SphereGeometry(size * 1.9, 16, 16), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.12 }));
+      g.position.copy(m.position); scene.add(g); p.extras.push(g);
+    }
+    if (p.private) {
+      const lock = new THREE.Mesh(new THREE.TorusGeometry(size * 1.35, 0.035, 6, 32), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35 }));
+      lock.position.copy(m.position); lock.rotation.x = Math.PI / 2; scene.add(lock); p.extras.push(lock);
+    }
+    if (animateFrom) { m.scale.setScalar(0.01); moves.push({ p, from: animateFrom.clone(), to: pos, t0: performance.now(), dur: reduceMotion ? 1 : 1400, grow: true }); }
+    return m;
+  }
+  function moveStar(p, k) {
+    const old = clusterHubs[p.cluster];
+    old.members = old.members.filter((x) => x !== p);
+    const hub = clusterHubs[k];
+    hub.members.push(p);
+    p.cluster = k;
+    const to = starPos(k, hub.members.length - 1, heat(p.days));
+    if (p.mesh && p.mesh.material.emissive) { p.mesh.material.emissive.copy(hub.color); p.mesh.material.color.copy(hub.color.clone().lerp(new THREE.Color(0xffffff), heat(p.days) * 0.45)); }
+    for (const e of p.extras || []) if (e.material.color && e.geometry.type === "SphereGeometry") e.material.color.copy(hub.color);
+    moves.push({ p, from: p.mesh.position.clone(), to, t0: performance.now(), dur: reduceMotion ? 1 : 2200, arc: 6 });
+    if (p.li) p.li.style.setProperty("--c", clusters[k].color);
+    updateClusterCounts();
+  }
+  function updateClusterCounts() {
+    for (const k of clusterKeys) {
+      clusterHubs[k].label.textContent = `${clusters[k].label} · ${clusterHubs[k].members.length}`;
+      const b = document.querySelector(`#clusters button[data-k="${k}"] b`); if (b) b.textContent = clusterHubs[k].members.length;
+    }
+  }
+  const toastEl = $("#toast"); let toastTimer = null;
+  function toast(msg) { toastEl.textContent = msg; toastEl.hidden = false; toastEl.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => { toastEl.classList.remove("show"); }, 6000); }
 
   // ---------- taken (Routines via api/fire.js) ----------
   const store = {
     get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
   };
-  const taskCfg = () => ({ api: store.get("hq.taskApi", registry.task_api || ""), pass: store.get("hq.taskPass", "") });
+  const taskCfg = () => ({ api: store.get("hq.taskApi", registry.task_api || ""), pass: store.get("hq.taskPass", ""), gh: store.get("hq.ghToken", "") });
+  const ghHeaders = () => { const h = { Accept: "application/vnd.github+json" }; const t = taskCfg().gh; if (t) h.Authorization = `Bearer ${t}`; return h; };
+  const POLL_MS = () => (taskCfg().gh ? 30000 : 120000);
   let routineProjects = new Set();
   const normName = (s) => String(s).toUpperCase().replace(/[^A-Z0-9]/g, "_");
   const hasRoutine = (p) => routineProjects.has(normName(p.name));
@@ -191,8 +224,9 @@
   const RUN_TIMEOUT = 90 * 60000;
   // Taken zonder status komen van vóór deze weergave; die tellen ook als "bezig" tot er een PR gevonden is.
   const isRunning = (r) => r.status !== "done" && Date.now() - Date.parse(r.started_at) < RUN_TIMEOUT;
-  const needsCheck = (r) => isRunning(r) || (r.status === "done" && !r.pr.merged && Date.now() - Date.parse(r.started_at) < 7 * DAY);
+  const needsCheck = (r) => isRunning(r) || (r.status === "done" && r.pr && !r.pr.merged && Date.now() - Date.parse(r.started_at) < 7 * DAY);
   function runStatus(r) {
+    if (r.status === "done" && r.commit) return `<a class="st ok" href="${esc(r.commit.url)}" target="_blank" rel="noopener" title="${esc(r.commit.message)}">✓ klaar · op main</a>`;
     if (r.status === "done") {
       const label = r.pr.merged ? `✓ #${r.pr.number} gemerged` : `PR #${r.pr.number} · wacht op merge`;
       return `<a class="st ${r.pr.merged ? "ok" : "wait"}" href="${esc(r.pr.url)}" target="_blank" rel="noopener" title="${esc(r.pr.title)}${r.pr.merged ? "" : " · klik om te bekijken en te mergen; daarna verandert de wereld"}">${label}</a>`;
@@ -205,26 +239,77 @@
     const byProject = new Map();
     for (const r of open) if (!byProject.has(r.project)) byProject.set(r.project, []);
     for (const r of open) byProject.get(r.project).push(r);
+    let changed = false;
     for (const [project, list] of byProject) {
       try {
-        const res = await fetch(`https://api.github.com/repos/${owner}/${project}/pulls?state=all&sort=created&direction=desc&per_page=15`, { headers: { Accept: "application/vnd.github+json" } });
+        // 1) Direct op main gepusht? Dan is de taak klaar.
+        const running = list.filter(isRunning);
+        if (running.length) {
+          const since = new Date(Math.min(...running.map((r) => Date.parse(r.started_at))) - 60000).toISOString();
+          const rc = await fetch(`https://api.github.com/repos/${owner}/${project}/commits?sha=main&since=${encodeURIComponent(since)}&per_page=10`, { headers: ghHeaders() });
+          if (rc.ok) {
+            const commits = (await rc.json()).filter((c) => !/^Merge pull request/.test(c.commit.message) && !/^Snapshot ververst/.test(c.commit.message));
+            for (const r of running) {
+              const c = commits.find((x) => Date.parse(x.commit.committer.date) >= Date.parse(r.started_at) - 60000 && !runs.some((o) => o !== r && o.commit && o.commit.sha === x.sha));
+              if (c) { r.status = "done"; r.commit = { sha: c.sha, url: c.html_url, message: c.commit.message.split("\n")[0] }; r.done_at = c.commit.committer.date; changed = true; toast(`✓ Claude is klaar in ${project}: ${r.commit.message}`); }
+            }
+          }
+        }
+        // 2) Anders: een claude/-PR (als de Routine toch een PR moest maken), en de merge-status van eerdere PR's.
+        const res = await fetch(`https://api.github.com/repos/${owner}/${project}/pulls?state=all&sort=created&direction=desc&per_page=15`, { headers: ghHeaders() });
         if (!res.ok) continue;
         const prs = await res.json();
         for (const r of list) {
-          if (r.status === "done") {
+          if (r.status === "done" && r.pr) {
             const cur = prs.find((x) => x.number === r.pr.number);
-            if (cur) r.pr.merged = !!cur.merged_at;
+            if (cur && !!cur.merged_at !== !!r.pr.merged) { r.pr.merged = !!cur.merged_at; changed = true; if (r.pr.merged) toast(`✓ PR #${r.pr.number} gemerged in ${project}`); }
             continue;
           }
+          if (r.status === "done") continue;
           const since = Date.parse(r.started_at) - 2 * 60000;
           const pr = prs.find((x) => x.head && /^claude\//.test(x.head.ref) && Date.parse(x.created_at) >= since && !runs.some((o) => o !== r && o.pr && o.pr.number === x.number));
-          if (pr) { r.status = "done"; r.pr = { number: pr.number, url: pr.html_url, title: pr.title, merged: !!pr.merged_at }; }
+          if (pr) { r.status = "done"; r.pr = { number: pr.number, url: pr.html_url, title: pr.title, merged: !!pr.merged_at }; changed = true; toast(`Claude opende PR #${pr.number} in ${project}`); }
         }
       } catch {}
     }
     store.set("hq.runs", runs);
     syncBusy();
     if (selected) renderTask(selected);
+    if (changed) refreshRegistry();
+  }
+
+  // Leest registry.json rechtstreeks van main en laat verschillen zien: sterren die verhuizen of erbij komen.
+  let registryEtag = "";
+  async function refreshRegistry() {
+    try {
+      const res = await fetch(`https://raw.githubusercontent.com/${owner}/hq/main/registry.json?v=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) return;
+      const text = await res.text();
+      if (text === registryEtag) return;
+      registryEtag = text;
+      const fresh = JSON.parse(text);
+      const structural = JSON.stringify(Object.keys(fresh.clusters)) !== JSON.stringify(clusterKeys)
+        || JSON.stringify(fresh.agents) !== JSON.stringify(registry.agents)
+        || clusterKeys.some((k) => JSON.stringify(fresh.clusters[k]) !== JSON.stringify(clusters[k]));
+      if (structural) { toast("Clusters of agents zijn veranderd; de wereld laadt opnieuw…"); setTimeout(() => location.reload(), 2500); return; }
+      for (const [name, reg] of Object.entries(fresh.projects)) {
+        const p = projects.find((x) => x.name === name);
+        const k = clusters[reg.cluster] ? reg.cluster : "lab";
+        if (!p) {
+          const np = { name, days: 9999, pushed_at: null, status: reg.status || "idea", cluster: k, private: false, agents: [...new Set([...(clusters[k].agents || []), ...(reg.agents || [])])], description: reg.description || "", links: reg.links || {} };
+          projects.push(np); clusterHubs[k].members.push(np);
+          makeStar(np, k, clusterHubs[k].members.length - 1, clusterHubs[k].center.clone());
+          addProjectRow(np); updateClusterCounts();
+          toast(`Nieuw project in de wereld: ${name} (${clusters[k].label})`);
+          continue;
+        }
+        if (p.cluster !== k) { moveStar(p, k); toast(`${name} verhuisd naar ${clusters[k].label}`); }
+        p.description = reg.description || p.description; p.status = reg.status || p.status; p.links = reg.links || p.links;
+        p.agents = [...new Set([...(clusters[k].agents || []), ...(reg.agents || [])])];
+        registry.projects[name] = reg;
+      }
+      if (selected) select(selected, true);
+    } catch {}
   }
   const busyRings = new Map(); // projectnaam -> mesh
   function syncBusy() {
@@ -241,7 +326,15 @@
       }
     }
   }
-  setInterval(() => { if (runs.some(needsCheck)) pollRuns(); else if (selected) renderTask(selected); }, 90000);
+  (function schedule() {
+    setTimeout(async () => {
+      if (runs.some(needsCheck)) await pollRuns();
+      else if (selected) renderTask(selected);
+      const recent = runs.some((r) => Date.now() - Date.parse(r.done_at || r.started_at) < 15 * 60000);
+      if (recent || runs.some(isRunning)) refreshRegistry();
+      schedule();
+    }, runs.some(isRunning) ? POLL_MS() : 180000);
+  })();
   function renderTask(p) {
     const { api, pass } = taskCfg();
     const hint = $("#task-hint"), form = $("#task-form"), st = $("#task-status");
@@ -253,7 +346,7 @@
       hint.innerHTML = `Geen Routine voor <b>${esc(p.name)}</b>. Maak er een aan en voeg hem toe aan HQ_ROUTINES (<a href="${readme}" target="_blank" rel="noopener">uitleg</a>).`;
       form.hidden = true;
     } else {
-      hint.textContent = "Claude start een cloud-sessie op dit project en opent een draft PR.";
+      hint.textContent = "Claude start een cloud-sessie op dit project en pusht het resultaat. Je ziet het hier en in de wereld verschijnen.";
       form.hidden = false;
     }
     const mine = runs.filter((r) => r.project === p.name).slice(0, 5);
@@ -279,7 +372,7 @@
     } finally { btn.disabled = false; }
   });
   const dlg = $("#settings");
-  $("#settings-open").addEventListener("click", () => { const c = taskCfg(); $("#set-api").value = c.api; $("#set-pass").value = c.pass; $("#set-status").textContent = ""; $("#set-status").className = "task-status"; dlg.showModal(); });
+  $("#settings-open").addEventListener("click", () => { const c = taskCfg(); $("#set-api").value = c.api; $("#set-pass").value = c.pass; $("#set-gh").value = c.gh; $("#set-status").textContent = ""; $("#set-status").className = "task-status"; dlg.showModal(); });
   $("#set-close").addEventListener("click", () => dlg.close());
   $("#set-test").addEventListener("click", async () => {
     const st = $("#set-status"); st.className = "task-status"; st.textContent = "Testen…";
@@ -290,7 +383,7 @@
       st.className = "task-status ok"; st.textContent = `Verbonden · routines voor: ${(d.projects || []).join(", ") || "nog geen"}`;
     } catch (err) { st.className = "task-status err"; st.textContent = err.message; }
   });
-  $("#settings-form").addEventListener("submit", () => { store.set("hq.taskApi", $("#set-api").value.trim()); store.set("hq.taskPass", $("#set-pass").value); loadRoutines(); });
+  $("#settings-form").addEventListener("submit", () => { store.set("hq.taskApi", $("#set-api").value.trim()); store.set("hq.taskPass", $("#set-pass").value); store.set("hq.ghToken", $("#set-gh").value.trim()); loadRoutines(); });
 
   // ---------- UI: rail ----------
   const clustersNav = $("#clusters");
@@ -307,14 +400,16 @@
     const li = document.createElement("li"); li.textContent = a; li.title = info.description; agentList.appendChild(li);
   }
   const list = $("#project-list");
-  projects.forEach((p) => {
+  function addProjectRow(p) {
     const li = document.createElement("li"); li.tabIndex = 0;
     li.style.setProperty("--c", clusters[p.cluster].color); li.style.setProperty("--o", 0.35 + heat(p.days) * 0.65);
-    li.innerHTML = `<i></i><span>${p.name}<b class="run" hidden title="Routine beschikbaar">▶</b></span><time>${rel(p.days, p.pushed_at)}</time>`;
+    li.innerHTML = `<i></i><span>${esc(p.name)}<b class="run" hidden title="Routine beschikbaar">▶</b></span><time>${rel(p.days, p.pushed_at)}</time>`;
     li.addEventListener("click", () => select(p));
     li.addEventListener("keydown", (e) => { if (e.key === "Enter") select(p); });
     p.li = li; list.appendChild(li);
-  });
+    if (routineProjects.size) li.querySelector(".run").hidden = !hasRoutine(p);
+  }
+  projects.forEach(addProjectRow);
 
   const q = $("#q");
   q.addEventListener("input", applyFilter);
@@ -332,7 +427,7 @@
   // ---------- selectie en paneel ----------
   const panel = $("#panel");
   let selected = null;
-  function select(p) {
+  function select(p, quiet) {
     selected = p;
     projects.forEach((x) => x.li.classList.toggle("on", x === p));
     const c = clusters[p.cluster];
@@ -351,6 +446,7 @@
     $("#p-links").innerHTML = links.join("");
     renderTask(p);
     panel.hidden = false;
+    if (quiet) return;
     if (p.mesh) flyTo(p.mesh.position, 9);
     p.li.scrollIntoView({ block: "nearest" });
   }
@@ -412,6 +508,15 @@
     controls.update();
     core.scale.setScalar(1 + Math.sin(s * 1.4) * 0.03); halo.scale.setScalar(1 + Math.sin(s * 1.4 + 1) * 0.08);
     for (const ring of busyRings.values()) { ring.rotation.z = s * 1.2; ring.material.opacity = 0.55 + Math.sin(s * 3) * 0.3; }
+    // sterren die verhuizen of verschijnen
+    for (let i = moves.length - 1; i >= 0; i--) {
+      const mv = moves[i], k = Math.min(1, (t - mv.t0) / mv.dur), e = 1 - Math.pow(1 - k, 3);
+      const pos = mv.from.clone().lerp(mv.to, e); if (mv.arc) pos.y += Math.sin(k * Math.PI) * mv.arc;
+      mv.p.mesh.position.copy(pos); for (const x of mv.p.extras || []) x.position.copy(pos);
+      const ring = busyRings.get(mv.p.name); if (ring) ring.position.copy(pos);
+      if (mv.grow) mv.p.mesh.scale.setScalar(0.01 + e * 0.99 * (mv.p.mesh.userData.baseScale || 1));
+      if (k >= 1) { moves.splice(i, 1); if (selected === mv.p) flyTo(mv.to, 9); }
+    }
     for (const k of clusterKeys) {
       const hub = clusterHubs[k];
       for (const m of hub.agentMeshes) {

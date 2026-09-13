@@ -8,6 +8,7 @@
 <canvas id="space" aria-label="3D-overzicht van alle bold700-projecten en agents"></canvas>
 <div id="labels" aria-hidden="true"></div>
 <div id="tip" class="tip" hidden></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
 <header class="brand">
   <h1>bold700 <span>HQ</span></h1>
@@ -64,6 +65,8 @@
     <p>Adres van je Vercel-functie en het wachtwoord uit <code>HQ_PASSWORD</code>. Beide blijven alleen in deze browser staan.</p>
     <label>API-adres<input id="set-api" type="url" placeholder="https://hq-bold700.vercel.app/api/fire" autocomplete="off"></label>
     <label>Wachtwoord<input id="set-pass" type="password" autocomplete="off"></label>
+    <label>GitHub-token (optioneel)<input id="set-gh" type="password" autocomplete="off" placeholder="github_pat_… voor snellere updates"></label>
+    <p>Zonder token kijkt de wereld elke 2 minuten op GitHub of een taak klaar is; met een token (alleen leesrechten op publieke repo's) elke 30 seconden.</p>
     <p class="task-status" id="set-status"></p>
     <div class="task-row">
       <button type="button" id="set-test" class="ghost">Verbinding testen</button>

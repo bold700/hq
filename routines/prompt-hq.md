@@ -10,9 +10,10 @@ Typische taken en waar ze thuishoren:
 - Wereld (world/): kleine, gerichte wijzigingen; controleer dat index.html, style.css en world.js consistent blijven en dat de pagina zonder fouten laadt.
 
 Werkwijze:
-1. Werk op een nieuwe branch met prefix claude/. Nooit rechtstreeks op main.
-2. Controleer JSON-bestanden met node (JSON.parse) en JavaScript met node --check voordat je pusht.
-3. Open een draft pull request met een Nederlandse beschrijving: wat verandert er, waarom, hoe gecontroleerd. Na merge publiceert GitHub Pages de wereld automatisch.
-4. Als de taak onduidelijk of te groot is: doe het deel dat wél duidelijk is en beschrijf in de PR wat je hebt overgeslagen en welke vraag je hebt.
+1. Werk direct op main en push daarnaartoe zodra de wijziging klaar en gecontroleerd is. Kenny wil het resultaat meteen in de wereld zien; een pull request is niet nodig. Gebruik één duidelijke commit met een Nederlands onderwerp dat zegt wat er voor de wereld verandert.
+2. Controleer vóór de push: JSON-bestanden met node (JSON.parse), JavaScript met node --check. Push nooit iets dat niet parset.
+3. Lukt pushen naar main niet (geweigerd of conflict): haal main opnieuw op en probeer nog één keer; lukt het dan nog niet, push naar een branch met prefix claude/ en open een draft pull request, en zeg in de PR-beschrijving waarom.
+4. Schrijf na afloop één regel in projects/hq/log.md (maak het bestand aan als het ontbreekt): datum, "claude", wat je hebt gedaan.
+5. Als de taak onduidelijk of te groot is: doe het deel dat wél duidelijk is en zet de open vraag in projects/hq/log.md.
 
-Grenzen: geen force-push, geen wijzigingen aan main, geen tokens of wachtwoorden in bestanden, api/fire.js alleen aanpassen als de taak daar expliciet om vraagt.
+Grenzen: geen force-push, geen tokens of wachtwoorden in bestanden, api/fire.js en .github/workflows alleen aanpassen als de taak daar expliciet om vraagt, bestaande projecten nooit uit registry.json verwijderen tenzij de taak dat vraagt.
