@@ -223,7 +223,7 @@
             const group = normalizeModel(gltf.scene, entry.size || 4.2, false);
             if (entry.tilt) group.rotation.z = entry.tilt;
             const rim = new THREE.PointLight(0xffe2a8, 1.2, 14, 2); rim.position.set(3, 4, 3); group.add(rim);
-            scene.add(group); core.visible = false; halo.scale.setScalar(1.35); models.core = group;
+            scene.add(group); core.visible = false; models.coreHalo = (entry.size || 4.2) / 3.1; halo.scale.setScalar(models.coreHalo); models.core = group;
           } else if (entry.role === "agent") {
             models.agent = normalizeModel(gltf.scene, 1.5, true);
             for (const k of Object.keys(clusterHubs)) for (const m of clusterHubs[k].agentMeshes) { const f = addBeacon(hullClone(models.agent, hashStr(k + m.userData.name)), clusters[k].color, 1.5); m.add(f); m.material.visible = false; m.userData.ship = f; }
@@ -790,7 +790,7 @@
     }
     updateComets(t);
     controls.update();
-    core.scale.setScalar(1 + Math.sin(s * 1.4) * 0.03); halo.scale.setScalar((models.core ? 1.35 : 1) * (1 + Math.sin(s * 1.4 + 1) * 0.08));
+    core.scale.setScalar(1 + Math.sin(s * 1.4) * 0.03); halo.scale.setScalar((models.core ? models.coreHalo : 1) * (1 + Math.sin(s * 1.4 + 1) * 0.08));
     if (models.core) models.core.rotation.y = s * 0.05;
     belt.rotation.y = s * 0.012;
     for (const m of pickables) {
