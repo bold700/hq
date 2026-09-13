@@ -117,6 +117,52 @@
     belt.add(inst);
   }
 
+  // kometen (gratis): af en toe schiet er een door de galaxy, met gloeiende kop en vervagende staart
+  const comets = []; let nextComet = performance.now() + 2500;
+  const TRAIL = 30;
+  function spawnComet() {
+    const a = Math.random() * Math.PI * 2, r = 68 + Math.random() * 22;
+    const from = new THREE.Vector3(Math.cos(a) * r, 6 + Math.random() * 16, Math.sin(a) * r);
+    const b = a + Math.PI + (Math.random() - 0.5) * 1.3;
+    const to = new THREE.Vector3(Math.cos(b) * r, -8 + Math.random() * 12, Math.sin(b) * r);
+    const pos = new Float32Array(TRAIL * 3), col = new Float32Array(TRAIL * 3);
+    for (let i = 0; i < TRAIL; i++) { const f = 1 - i / TRAIL; col.set([0.2 + 0.7 * f, 0.35 + 0.6 * f, 1], i * 3); }
+    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.setAttribute("color", new THREE.BufferAttribute(col, 3));
+    const line = new THREE.Line(g, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }));
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 12), new THREE.MeshBasicMaterial({ color: 0xe6f6ff }));
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: nebulaTexture("#bfe6ff"), transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false })); glow.scale.setScalar(3.2);
+    scene.add(line); scene.add(head); scene.add(glow);
+    comets.push({ from, to, line, head, glow, t0: performance.now(), dur: 4200 + Math.random() * 3800, trail: [] });
+  }
+  function updateComets(t) {
+    if (!reduceMotion && t > nextComet) { spawnComet(); nextComet = t + 9000 + Math.random() * 16000; }
+    for (let i = comets.length - 1; i >= 0; i--) {
+      const c = comets[i], k = (t - c.t0) / c.dur;
+      if (k >= 1) { scene.remove(c.line); scene.remove(c.head); scene.remove(c.glow); c.line.geometry.dispose(); comets.splice(i, 1); continue; }
+      const p = c.from.clone().lerp(c.to, k); p.y += Math.sin(k * Math.PI) * 7;
+      c.head.position.copy(p); c.glow.position.copy(p);
+      c.trail.unshift(p); if (c.trail.length > TRAIL) c.trail.length = TRAIL;
+      const arr = c.line.geometry.attributes.position.array;
+      for (let j = 0; j < TRAIL; j++) { const q = c.trail[Math.min(j, c.trail.length - 1)]; arr[j * 3] = q.x; arr[j * 3 + 1] = q.y; arr[j * 3 + 2] = q.z; }
+      c.line.geometry.attributes.position.needsUpdate = true;
+      const fade = k > 0.85 ? (1 - k) / 0.15 : 1; c.line.material.opacity = 0.95 * fade; c.glow.material.opacity = 0.95 * fade;
+    }
+  }
+
+  // warp (gratis): lichtstrepen in beeld tijdens een camera-vlucht
+  scene.add(camera);
+  const warpMat = new THREE.LineBasicMaterial({ color: 0xcfe6ff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthTest: false, depthWrite: false });
+  const warp = (() => {
+    const n = 160, pos = new Float32Array(n * 6);
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, r0 = 0.5 + Math.random() * 4.5, len = 0.8 + Math.random() * 2.2;
+      const x = Math.cos(a) * r0, y = Math.sin(a) * r0, f = 1 + len / r0;
+      pos.set([x, y, -8, x * f, y * f, -8.6], i * 6);
+    }
+    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    const ls = new THREE.LineSegments(g, warpMat); ls.renderOrder = 999; ls.frustumCulled = false; camera.add(ls); return ls;
+  })();
+
   // HQ-kern: een gouden zon, of het 3D-station uit models/ als dat er is (Meshy)
   const core = new THREE.Mesh(new THREE.SphereGeometry(1.6, 48, 48), new THREE.MeshStandardMaterial({ color: 0xffd27a, emissive: 0xffb84a, emissiveIntensity: 0.9, roughness: 0.4 }));
   scene.add(core);
@@ -206,7 +252,7 @@
     const color = new THREE.Color(c.color);
     const ring = new THREE.Mesh(new THREE.TorusGeometry(2.2, 0.05, 8, 64), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.7 }));
     ring.position.copy(center); ring.rotation.x = Math.PI / 2; scene.add(ring);
-    const disc = new THREE.Mesh(new THREE.RingGeometry(2.4, 9.5, 64), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.035, side: THREE.DoubleSide }));
+    const disc = new THREE.Mesh(new THREE.RingGeometry(2.4, 9.5, 64), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.035, side: THREE.DoubleSide, depthWrite: false }));
     disc.position.copy(center); disc.rotation.x = -Math.PI / 2; scene.add(disc);
     const link = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), center]), new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.18 }));
     scene.add(link);
@@ -555,7 +601,8 @@
     controls.autoRotate = false;
     const dir = camera.position.clone().sub(controls.target).normalize();
     const to = target.clone().add(dir.multiplyScalar(dist)).add(new THREE.Vector3(0, dist * 0.35, 0));
-    fly = { t0: performance.now(), from: camera.position.clone(), to, tFrom: controls.target.clone(), tTo: target.clone(), dur: reduceMotion ? 1 : 900 };
+    const far = camera.position.distanceTo(to);
+    fly = { t0: performance.now(), from: camera.position.clone(), to, tFrom: controls.target.clone(), tTo: target.clone(), dur: reduceMotion ? 1 : Math.min(1600, 700 + far * 12) };
   }
 
   // hover en klik
@@ -600,8 +647,11 @@
     if (fly) {
       const k = Math.min(1, (t - fly.t0) / fly.dur), e = 1 - Math.pow(1 - k, 3);
       camera.position.lerpVectors(fly.from, fly.to, e); controls.target.lerpVectors(fly.tFrom, fly.tTo, e);
-      if (k >= 1) fly = null;
+      const w = reduceMotion ? 0 : Math.sin(k * Math.PI);
+      warpMat.opacity = w * 0.75; warp.rotation.z = k * 0.6; camera.fov = 50 + w * 14; camera.updateProjectionMatrix();
+      if (k >= 1) { fly = null; warpMat.opacity = 0; camera.fov = 50; camera.updateProjectionMatrix(); }
     }
+    updateComets(t);
     controls.update();
     core.scale.setScalar(1 + Math.sin(s * 1.4) * 0.03); halo.scale.setScalar((models.core ? 1.35 : 1) * (1 + Math.sin(s * 1.4 + 1) * 0.08));
     if (models.core) models.core.rotation.y = s * 0.12;
