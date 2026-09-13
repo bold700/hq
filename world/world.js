@@ -164,6 +164,8 @@
   };
   const taskCfg = () => ({ api: store.get("hq.taskApi", registry.task_api || ""), pass: store.get("hq.taskPass", "") });
   let routineProjects = new Set();
+  const normName = (s) => String(s).toUpperCase().replace(/[^A-Z0-9]/g, "_");
+  const hasRoutine = (p) => routineProjects.has(normName(p.name));
   const runs = store.get("hq.runs", []);
   async function callApi(method, body) {
     const { api, pass } = taskCfg();
@@ -176,8 +178,8 @@
   async function loadRoutines() {
     const { api, pass } = taskCfg();
     routineProjects = new Set();
-    if (api && pass) { try { routineProjects = new Set((await callApi("GET")).projects || []); } catch {} }
-    projects.forEach((p) => { if (p.li) p.li.querySelector(".run").hidden = !routineProjects.has(p.name); });
+    if (api && pass) { try { routineProjects = new Set(((await callApi("GET")).projects || []).map(normName)); } catch {} }
+    projects.forEach((p) => { if (p.li) p.li.querySelector(".run").hidden = !hasRoutine(p); });
     if (selected) renderTask(selected);
   }
   const relTime = (iso) => { const d = (Date.now() - Date.parse(iso)) / DAY; return d < 1 ? "vandaag" : `${Math.round(d)} d geleden`; };
@@ -190,7 +192,7 @@
     if (!api || !pass) {
       hint.innerHTML = `Nog niet ingesteld. Klik op ⚙ in de zijbalk. Uitleg: <a href="${readme}" target="_blank" rel="noopener">routines/README.md</a>`;
       form.hidden = true;
-    } else if (!routineProjects.has(p.name)) {
+    } else if (!hasRoutine(p)) {
       hint.innerHTML = `Geen Routine voor <b>${esc(p.name)}</b>. Maak er een aan en voeg hem toe aan HQ_ROUTINES (<a href="${readme}" target="_blank" rel="noopener">uitleg</a>).`;
       form.hidden = true;
     } else {
