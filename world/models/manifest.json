@@ -8,7 +8,7 @@
     "task_id": "01a09c48-6c42-723b-a1c6-632763189c6d",
     "bytes": 397616,
     "generated_at": "2026-09-13T19:41:41.220Z",
-    "role": "core"
+    "role": "retired"
   },
   "ship-fighter": {
     "file": "ship-fighter.glb",
@@ -52,6 +52,8 @@
     "task_id": "01a09c6a-b43d-74d3-9241-31d51a988919",
     "bytes": 859760,
     "generated_at": "2026-09-13T20:18:36.942Z",
-    "role": "core-new"
+    "role": "core",
+    "size": 7.5,
+    "tilt": -0.35
   }
 }

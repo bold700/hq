@@ -220,7 +220,8 @@
         if (!["core", "agent", "cluster", "project"].includes(entry.role)) continue;
         loader.load(`models/${entry.file}`, (gltf) => {
           if (entry.role === "core") {
-            const group = normalizeModel(gltf.scene, 4.2, false);
+            const group = normalizeModel(gltf.scene, entry.size || 4.2, false);
+            if (entry.tilt) group.rotation.z = entry.tilt;
             const rim = new THREE.PointLight(0xffe2a8, 1.2, 14, 2); rim.position.set(3, 4, 3); group.add(rim);
             scene.add(group); core.visible = false; halo.scale.setScalar(1.35); models.core = group;
           } else if (entry.role === "agent") {
@@ -790,7 +791,7 @@
     updateComets(t);
     controls.update();
     core.scale.setScalar(1 + Math.sin(s * 1.4) * 0.03); halo.scale.setScalar((models.core ? 1.35 : 1) * (1 + Math.sin(s * 1.4 + 1) * 0.08));
-    if (models.core) models.core.rotation.y = s * 0.12;
+    if (models.core) models.core.rotation.y = s * 0.05;
     belt.rotation.y = s * 0.012;
     for (const m of pickables) {
       if (m.userData.kind === "project") { if (m.userData.spin) m.rotation.y = s * m.userData.spin; if (m.userData.ship) m.userData.ship.position.y = Math.sin(s * 0.9 + m.userData.bob) * 0.08; }
