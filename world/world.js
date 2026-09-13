@@ -188,7 +188,7 @@
       if (nf && nb && front / nf > back / nb) obj.rotation.y += Math.PI; // voorkant is breder dan achterkant: omdraaien
     }
     // Preview-modellen van Meshy zijn ongetextureerd; geef ze de gouden HQ-look. Getextureerde modellen laten we met rust.
-    obj.traverse((n) => { if (n.isMesh) { if (!n.material || !n.material.map) n.material = goldMat(); else n.material.roughness = Math.min(0.8, n.material.roughness ?? 0.6); } });
+    obj.traverse((n) => { if (n.isMesh) { if (!n.material || !n.material.map) n.material = goldMat(); else { n.material.roughness = Math.min(0.8, n.material.roughness ?? 0.6); n.material.emissive = new THREE.Color(0x141a26); n.material.emissiveIntensity = 0.55; n.material.emissiveMap = n.material.map; } } });
     wrap.add(obj); return wrap;
   }
   const tintClone = (tpl, tint) => { const o = tpl.clone(); o.traverse((n) => { if (n.isMesh && !n.material.map) n.material = goldMat(tint); }); return o; };
@@ -222,7 +222,10 @@
           if (entry.role === "core") {
             const group = normalizeModel(gltf.scene, entry.size || 4.2, false);
             if (entry.tilt) group.rotation.z = entry.tilt;
-            const rim = new THREE.PointLight(0xffe2a8, 1.2, 14, 2); rim.position.set(3, 4, 3); group.add(rim);
+            // eigen lichtset voor het station: warm hoofdlicht, koel tegenlicht, zodat platen en schotel leesbaar zijn
+            const sz = entry.size || 4.2;
+            const keyL = new THREE.PointLight(0xfff0d0, 2.6, sz * 6, 1.4); keyL.position.set(sz * 1.3, sz * 1.1, sz * 1.2); group.add(keyL);
+            const fillL = new THREE.PointLight(0x9fb8ff, 1.3, sz * 6, 1.4); fillL.position.set(-sz * 1.2, sz * 0.4, -sz * 1.3); group.add(fillL);
             scene.add(group); core.visible = false; models.coreHalo = (entry.size || 4.2) / 3.1; halo.scale.setScalar(models.coreHalo); models.core = group;
           } else if (entry.role === "agent") {
             models.agent = normalizeModel(gltf.scene, 1.5, true);
