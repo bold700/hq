@@ -21,6 +21,10 @@ Een Routine is een opgeslagen Claude Code configuratie (prompt + repo + omgeving
    ```json
    {"LiftLog": {"id": "trig_01ABC...", "token": "sk-ant-oat01-..."}}
    ```
+   Twijfel je over het id? Gebruik dan `"url"` met de complete fire-URL uit het API-trigger-venster:
+   ```json
+   {"LiftLog": {"url": "https://api.anthropic.com/v1/claude_code/routines/trig_01ABC.../fire", "token": "sk-ant-oat01-..."}}
+   ```
    De sleutel is de projectnaam zoals in `registry.json`. Redeploy Vercel na het aanpassen van variabelen.
 
 ### 3. In de wereld

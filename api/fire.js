@@ -4,6 +4,7 @@
 // Omgevingsvariabelen (Vercel → Settings → Environment Variables):
 //   HQ_PASSWORD  wachtwoord dat je in de wereld invult
 //   HQ_ROUTINES  JSON: {"LiftLog": {"id": "trig_...", "token": "sk-ant-oat01-..."}, "hq": {...}}
+//                In plaats van "id" mag ook "url": de volledige fire-URL uit het API-trigger-venster.
 //   HQ_ORIGINS   (optioneel) komma-gescheiden lijst van toegestane origins; standaard https://bold700.github.io
 const crypto = require("crypto");
 
@@ -42,11 +43,11 @@ module.exports = async (req, res) => {
 
   const { project, text } = req.body || {};
   const routine = routines[project];
-  if (!routine || !routine.id || !routine.token) return res.status(404).json({ error: `Geen routine voor ${project}` });
+  if (!routine || !(routine.id || routine.url) || !routine.token) return res.status(404).json({ error: `Geen routine voor ${project}` });
   if (typeof text !== "string" || !text.trim()) return res.status(400).json({ error: "Geef een taak op" });
   if (text.length > 8000) return res.status(400).json({ error: "Taak is te lang (max 8000 tekens)" });
 
-  const upstream = await fetch(FIRE(routine.id), {
+  const upstream = await fetch(routine.url || FIRE(routine.id), {
     method: "POST",
     headers: {
       Authorization: `Bearer ${routine.token}`,
