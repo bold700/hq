@@ -170,7 +170,7 @@
   const halo = new THREE.Mesh(new THREE.SphereGeometry(2.6, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffd27a, transparent: true, opacity: 0.08 }));
   scene.add(halo);
   // 3D-modellen uit models/ (Meshy): rol "core" = HQ-station, "agent" = jager voor alle agents, "cluster" = moederschip per stelsel.
-  const models = { core: null, agent: null, cluster: null };
+  const models = { core: null, agent: null, cluster: null, project: null };
   const goldMat = (tint) => new THREE.MeshStandardMaterial({ color: tint ? new THREE.Color(0xe6b862).lerp(new THREE.Color(tint), 0.45) : 0xe6b862, metalness: 0.65, roughness: 0.38, emissive: tint ? new THREE.Color(tint).multiplyScalar(0.25) : new THREE.Color(0x4a3208), emissiveIntensity: 0.55 });
   function normalizeModel(obj, targetSize, alongZ) {
     const box = new THREE.Box3().setFromObject(obj); const size = box.getSize(new THREE.Vector3()); const c = box.getCenter(new THREE.Vector3());
@@ -198,7 +198,7 @@
       if (!THREE.GLTFLoader) return;
       const loader = new THREE.GLTFLoader();
       for (const entry of Object.values(manifest)) {
-        if (!["core", "agent", "cluster"].includes(entry.role)) continue;
+        if (!["core", "agent", "cluster", "project"].includes(entry.role)) continue;
         loader.load(`models/${entry.file}`, (gltf) => {
           if (entry.role === "core") {
             const group = normalizeModel(gltf.scene, 4.2, false);
@@ -213,6 +213,9 @@
               const hub = clusterHubs[k]; const ship = tintClone(models.cluster, clusters[k].color);
               ship.position.copy(hub.center).add(new THREE.Vector3(0, 1.1, 0)); ship.rotation.y = Math.random() * Math.PI * 2; scene.add(ship); hub.ship = ship;
             }
+          } else if (entry.role === "project") {
+            models.project = normalizeModel(gltf.scene, 1, true);
+            for (const p of projects) attachShip(p);
           }
         }, undefined, () => {});
       }
@@ -337,6 +340,7 @@
     m.position.copy(animateFrom || pos); m.userData = { kind: "project", p, baseScale: 1, spin: 0.08 + Math.random() * 0.25, tilt: (Math.random() - 0.5) * 0.6 };
     m.rotation.z = m.userData.tilt;
     scene.add(m); pickables.push(m); p.mesh = m; p.extras = [];
+    if (models.project) queueMicrotask(() => { attachShip(p); if (linksReady) rebuildLinks(); });
     if (p.status !== "archived") { // dunne dampkring: iets grotere bol, van binnenuit gezien, additief
       const atm = new THREE.Mesh(new THREE.SphereGeometry(size * 1.06, 32, 32), new THREE.MeshBasicMaterial({ color: color.clone().lerp(new THREE.Color(0xffffff), 0.4), transparent: true, opacity: 0.16 + h * 0.14, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false }));
       atm.position.copy(m.position); scene.add(atm); p.extras.push(atm);
@@ -362,10 +366,76 @@
     if (p.mesh && p.mesh.material.emissive) { p.mesh.material.emissive.copy(hub.color); p.mesh.material.color.copy(hub.color.clone().lerp(new THREE.Color(0xffffff), heat(p.days) * 0.45)); }
     for (const e of p.extras || []) if (e.material.color && e.geometry.type !== "TorusGeometry") e.material.color.copy(hub.color);
     if (p.mesh && p.mesh.material.map) { p.mesh.material.map = planetTexture(clusters[k].color, planetType(p.name), p.name); p.mesh.material.needsUpdate = true; }
+    if (p.mesh && p.mesh.userData.ship) p.mesh.userData.ship.traverse((n) => { if (n.isMesh && !n.material.map) n.material = goldMat(clusters[k].color); });
+    if (linksReady) rebuildLinks();
     moves.push({ p, from: p.mesh.position.clone(), to, t0: performance.now(), dur: reduceMotion ? 1 : 2200, arc: 6 });
     if (p.li) p.li.style.setProperty("--c", clusters[k].color);
     updateClusterCounts();
   }
+  // Vloot: elk project is een klein slagschip (model met rol project) aan het planeetpunt; de bol blijft onzichtbaar als klikdoel.
+  function attachShip(p) {
+    if (!models.project || !p.mesh || p.mesh.userData.ship) return;
+    const hub = clusterHubs[p.cluster];
+    const ship = tintClone(models.project, p.status === "archived" ? "#5d6580" : clusters[p.cluster].color);
+    const len = 0.9 + heat(p.days) * 2.3; ship.scale.setScalar(len);
+    p.mesh.add(ship); p.mesh.material.visible = false; p.mesh.userData.ship = ship; p.mesh.userData.spin = 0; p.mesh.rotation.set(0, 0, 0);
+    for (const e of p.extras || []) if (e.geometry.type !== "TorusGeometry") e.visible = false; // dampkring en ring horen bij planeten
+    // koers: in formatie, dwars op de lijn naar het moederschip, met een eigen kleine afwijking
+    const d = p.mesh.position.clone().sub(hub.center); const tangent = new THREE.Vector3(-d.z, 0, d.x).normalize();
+    const yaw = (hashStr(p.name) % 100) / 100 - 0.5;
+    p.mesh.lookAt(p.mesh.position.clone().add(tangent).add(d.clone().normalize().multiplyScalar(yaw)));
+    p.mesh.userData.bob = (hashStr(p.name) % 628) / 100;
+  }
+  // Datalinks: neonlijnen van elk schip naar zijn moederschip en van elk moederschip naar HQ, met lichtpulsen die data lijken te versturen.
+  var linksReady = false;
+  const LINK_CAP = 240, PULSES_PER = 3;
+  const linkGeo = new THREE.BufferGeometry();
+  linkGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(LINK_CAP * 6), 3));
+  linkGeo.setAttribute("color", new THREE.BufferAttribute(new Float32Array(LINK_CAP * 6), 3));
+  const linkLines = new THREE.LineSegments(linkGeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false }));
+  linkLines.frustumCulled = false; scene.add(linkLines);
+  const pulseGeo = new THREE.BufferGeometry();
+  pulseGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(LINK_CAP * PULSES_PER * 3), 3));
+  pulseGeo.setAttribute("color", new THREE.BufferAttribute(new Float32Array(LINK_CAP * PULSES_PER * 3), 3));
+  const dotTex = (() => { const cv = document.createElement("canvas"); cv.width = cv.height = 64; const c = cv.getContext("2d"); const g = c.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(0.35, "rgba(255,255,255,0.6)"); g.addColorStop(1, "rgba(255,255,255,0)"); c.fillStyle = g; c.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(cv); })();
+  const pulses = new THREE.Points(pulseGeo, new THREE.PointsMaterial({ size: 0.9, map: dotTex, vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true }));
+  pulses.frustumCulled = false; scene.add(pulses);
+  let links = [];
+  const GOLD = new THREE.Color(0xffd27a), WHITE = new THREE.Color(0xffffff);
+  function rebuildLinks() {
+    links = [];
+    for (const p of projects) if (p.mesh) links.push({ kind: "project", p, hub: clusterHubs[p.cluster], color: clusterHubs[p.cluster].color, seed: hashStr(p.name) });
+    for (const k of clusterKeys) links.push({ kind: "hub", hub: clusterHubs[k], color: clusterHubs[k].color, seed: hashStr(k) });
+    links = links.slice(0, LINK_CAP);
+    linkGeo.setDrawRange(0, links.length * 2); pulseGeo.setDrawRange(0, links.length * PULSES_PER);
+    linksReady = true;
+  }
+  const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Color();
+  function updateLinks(s) {
+    const lp = linkGeo.attributes.position.array, lc = linkGeo.attributes.color.array, pp = pulseGeo.attributes.position.array, pc = pulseGeo.attributes.color.array;
+    for (let i = 0; i < links.length; i++) {
+      const L = links[i];
+      if (L.kind === "project") { _a.copy(L.p.mesh.position); _b.copy(L.hub.center); _b.y += 1.1; } else { _a.copy(L.hub.center); _a.y += 1.1; _b.set(0, 0.8, 0); }
+      const busy = L.kind === "project" && busyRings.has(L.p.name);
+      const h = L.kind === "project" ? heat(L.p.days) : 1;
+      const lineCol = _c.copy(busy ? GOLD : L.color).multiplyScalar(busy ? 0.9 : 0.16 + h * 0.3);
+      lp.set([_a.x, _a.y, _a.z, _b.x, _b.y, _b.z], i * 6); lc.set([lineCol.r, lineCol.g, lineCol.b, lineCol.r, lineCol.g, lineCol.b], i * 6);
+      const active = busy ? PULSES_PER : L.kind === "hub" ? 2 : h >= 1 ? 2 : 1;
+      const speed = (busy ? 0.9 : 0.12 + h * 0.25);
+      for (let j = 0; j < PULSES_PER; j++) {
+        const idx = (i * PULSES_PER + j) * 3;
+        if (j >= active) { pc[idx] = pc[idx + 1] = pc[idx + 2] = 0; pp[idx] = _a.x; pp[idx + 1] = _a.y; pp[idx + 2] = _a.z; continue; }
+        const ph = ((L.seed % 1000) / 1000 + j / PULSES_PER + s * speed) % 1;
+        const f = j % 2 === 0 ? ph : 1 - ph; // om en om heen en terug
+        pp[idx] = _a.x + (_b.x - _a.x) * f; pp[idx + 1] = _a.y + (_b.y - _a.y) * f + Math.sin(f * Math.PI) * 0.25; pp[idx + 2] = _a.z + (_b.z - _a.z) * f;
+        const col = _c.copy(busy ? GOLD : L.color).lerp(WHITE, 0.45).multiplyScalar(busy ? 1.4 : 0.55 + h * 0.6);
+        pc[idx] = col.r; pc[idx + 1] = col.g; pc[idx + 2] = col.b;
+      }
+    }
+    linkGeo.attributes.position.needsUpdate = true; linkGeo.attributes.color.needsUpdate = true;
+    pulseGeo.attributes.position.needsUpdate = true; pulseGeo.attributes.color.needsUpdate = true;
+  }
+  rebuildLinks();
   function updateClusterCounts() {
     for (const k of clusterKeys) {
       clusterHubs[k].label.textContent = `${clusters[k].label} · ${clusterHubs[k].members.length}`;
@@ -700,7 +770,8 @@
     core.scale.setScalar(1 + Math.sin(s * 1.4) * 0.03); halo.scale.setScalar((models.core ? 1.35 : 1) * (1 + Math.sin(s * 1.4 + 1) * 0.08));
     if (models.core) models.core.rotation.y = s * 0.12;
     belt.rotation.y = s * 0.012;
-    for (const m of pickables) if (m.userData.kind === "project" && m.userData.spin) m.rotation.y = s * m.userData.spin;
+    for (const m of pickables) if (m.userData.kind === "project") { if (m.userData.spin) m.rotation.y = s * m.userData.spin; if (m.userData.ship) m.userData.ship.position.y = Math.sin(s * 0.9 + m.userData.bob) * 0.08; }
+    if (linksReady) updateLinks(s);
     for (const ring of busyRings.values()) { ring.rotation.z = s * 1.2; ring.material.opacity = 0.55 + Math.sin(s * 3) * 0.3; }
     // sterren die verhuizen of verschijnen
     for (let i = moves.length - 1; i >= 0; i--) {
