@@ -85,8 +85,36 @@
       const r = 120 + Math.random() * 120, t = Math.random() * Math.PI * 2, p = Math.acos(2 * Math.random() - 1);
       pos.set([r * Math.sin(p) * Math.cos(t), r * Math.cos(p) * 0.6, r * Math.sin(p) * Math.sin(t)], i * 3);
     }
-    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    scene.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0x9aa7d0, size: 0.35, sizeAttenuation: true, transparent: true, opacity: 0.8 })));
+    const col = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) { const w = Math.random(); const c = w < 0.7 ? [0.72, 0.78, 1] : w < 0.9 ? [1, 0.86, 0.62] : [1, 0.55, 0.45]; col.set(c, i * 3); }
+    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.setAttribute("color", new THREE.BufferAttribute(col, 3));
+    scene.add(new THREE.Points(g, new THREE.PointsMaterial({ vertexColors: true, size: 0.4, sizeAttenuation: true, transparent: true, opacity: 0.85 })));
+  }
+
+  // nevels (gratis): zachte gekleurde wolken achter elk sterrenstelsel
+  function nebulaTexture(hex) {
+    const cv = document.createElement("canvas"); cv.width = cv.height = 256; const ctx = cv.getContext("2d");
+    const c = new THREE.Color(hex); const rgb = `${Math.round(c.r * 255)},${Math.round(c.g * 255)},${Math.round(c.b * 255)}`;
+    const gr = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+    gr.addColorStop(0, `rgba(${rgb},0.55)`); gr.addColorStop(0.45, `rgba(${rgb},0.18)`); gr.addColorStop(1, `rgba(${rgb},0)`);
+    ctx.fillStyle = gr; ctx.fillRect(0, 0, 256, 256);
+    for (let i = 0; i < 40; i++) { ctx.fillStyle = `rgba(${rgb},${0.05 + Math.random() * 0.08})`; ctx.beginPath(); ctx.arc(64 + Math.random() * 128, 64 + Math.random() * 128, 10 + Math.random() * 40, 0, Math.PI * 2); ctx.fill(); }
+    return new THREE.CanvasTexture(cv);
+  }
+  const nebulae = [];
+  // asteroïdengordel (gratis) rond de hele galaxy
+  const belt = new THREE.Group(); scene.add(belt);
+  {
+    const n = 700, geo = new THREE.DodecahedronGeometry(0.22, 0), mat = new THREE.MeshStandardMaterial({ color: 0x8a8f9c, roughness: 1, metalness: 0.1 });
+    const inst = new THREE.InstancedMesh(geo, mat, n); const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), v3 = new THREE.Vector3(), sc = new THREE.Vector3();
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, r = 44 + (Math.random() - 0.5) * 6 * Math.random();
+      v3.set(Math.cos(a) * r, (Math.random() - 0.5) * 3.2, Math.sin(a) * r);
+      e.set(Math.random() * 6, Math.random() * 6, Math.random() * 6); q.setFromEuler(e);
+      const s = 0.4 + Math.random() * 1.4; sc.set(s, s * (0.7 + Math.random() * 0.6), s);
+      m4.compose(v3, q, sc); inst.setMatrixAt(i, m4);
+    }
+    belt.add(inst);
   }
 
   // HQ-kern: een gouden zon, of het 3D-station uit models/ als dat er is (Meshy)
@@ -94,25 +122,44 @@
   scene.add(core);
   const halo = new THREE.Mesh(new THREE.SphereGeometry(2.6, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffd27a, transparent: true, opacity: 0.08 }));
   scene.add(halo);
-  const models = { core: null };
+  // 3D-modellen uit models/ (Meshy): rol "core" = HQ-station, "agent" = jager voor alle agents, "cluster" = moederschip per stelsel.
+  const models = { core: null, agent: null, cluster: null };
+  const goldMat = (tint) => new THREE.MeshStandardMaterial({ color: tint ? new THREE.Color(0xe6b862).lerp(new THREE.Color(tint), 0.45) : 0xe6b862, metalness: 0.65, roughness: 0.38, emissive: tint ? new THREE.Color(tint).multiplyScalar(0.25) : new THREE.Color(0x4a3208), emissiveIntensity: 0.55 });
+  function normalizeModel(obj, targetSize, alongZ) {
+    const box = new THREE.Box3().setFromObject(obj); const size = box.getSize(new THREE.Vector3()); const c = box.getCenter(new THREE.Vector3());
+    const wrap = new THREE.Group();
+    const s = targetSize / Math.max(size.x, size.y, size.z);
+    obj.scale.setScalar(s); obj.position.sub(c.multiplyScalar(s));
+    if (alongZ && size.x > size.z) obj.rotation.y = -Math.PI / 2; // lange as van het schip langs Z, zodat lookAt "vooruit" is
+    // Preview-modellen van Meshy zijn ongetextureerd; geef ze de gouden HQ-look. Getextureerde modellen laten we met rust.
+    obj.traverse((n) => { if (n.isMesh) { if (!n.material || !n.material.map) n.material = goldMat(); else n.material.roughness = Math.min(0.8, n.material.roughness ?? 0.6); } });
+    wrap.add(obj); return wrap;
+  }
+  const tintClone = (tpl, tint) => { const o = tpl.clone(); o.traverse((n) => { if (n.isMesh && !n.material.map) n.material = goldMat(tint); }); return o; };
   (async () => {
     try {
       const manifest = await fetch("models/manifest.json", { cache: "no-store" }).then((r) => (r.ok ? r.json() : {}));
-      const entry = Object.values(manifest).find((m) => m.role === "core");
-      if (!entry || !THREE.GLTFLoader) return;
-      new THREE.GLTFLoader().load(`models/${entry.file}`, (gltf) => {
-        const obj = gltf.scene;
-        const box = new THREE.Box3().setFromObject(obj); const size = box.getSize(new THREE.Vector3()); const c = box.getCenter(new THREE.Vector3());
-        const s = 4.2 / Math.max(size.x, size.y, size.z);
-        obj.scale.setScalar(s); obj.position.sub(c.multiplyScalar(s));
-        // Preview-modellen van Meshy zijn ongetextureerd; geef ze de gouden HQ-look. Getextureerde modellen laten we met rust.
-        const gold = new THREE.MeshStandardMaterial({ color: 0xe6b862, metalness: 0.65, roughness: 0.38, emissive: 0x4a3208, emissiveIntensity: 0.55 });
-        obj.traverse((n) => { if (n.isMesh) { if (!n.material || !n.material.map) n.material = gold; else { n.material.roughness = Math.min(0.8, n.material.roughness ?? 0.6); } } });
-        const rim = new THREE.PointLight(0xffe2a8, 1.2, 14, 2); rim.position.set(3, 4, 3); obj.add(rim);
-        const group = new THREE.Group(); group.add(obj); scene.add(group);
-        core.visible = false; halo.scale.setScalar(1.35);
-        models.core = group;
-      }, undefined, () => {});
+      if (!THREE.GLTFLoader) return;
+      const loader = new THREE.GLTFLoader();
+      for (const entry of Object.values(manifest)) {
+        if (!["core", "agent", "cluster"].includes(entry.role)) continue;
+        loader.load(`models/${entry.file}`, (gltf) => {
+          if (entry.role === "core") {
+            const group = normalizeModel(gltf.scene, 4.2, false);
+            const rim = new THREE.PointLight(0xffe2a8, 1.2, 14, 2); rim.position.set(3, 4, 3); group.add(rim);
+            scene.add(group); core.visible = false; halo.scale.setScalar(1.35); models.core = group;
+          } else if (entry.role === "agent") {
+            models.agent = normalizeModel(gltf.scene, 1.5, true);
+            for (const k of Object.keys(clusterHubs)) for (const m of clusterHubs[k].agentMeshes) { m.add(tintClone(models.agent)); m.material.visible = false; m.userData.ship = true; }
+          } else if (entry.role === "cluster") {
+            models.cluster = normalizeModel(gltf.scene, 3.4, true);
+            for (const k of Object.keys(clusterHubs)) {
+              const hub = clusterHubs[k]; const ship = tintClone(models.cluster, clusters[k].color);
+              ship.position.copy(hub.center).add(new THREE.Vector3(0, 1.1, 0)); ship.rotation.y = Math.random() * Math.PI * 2; scene.add(ship); hub.ship = ship;
+            }
+          }
+        }, undefined, () => {});
+      }
     } catch {}
   })();
 
@@ -163,6 +210,8 @@
     disc.position.copy(center); disc.rotation.x = -Math.PI / 2; scene.add(disc);
     const link = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), center]), new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.18 }));
     scene.add(link);
+    const neb = new THREE.Sprite(new THREE.SpriteMaterial({ map: nebulaTexture(c.color), transparent: true, opacity: 0.32, depthWrite: false, blending: THREE.AdditiveBlending }));
+    neb.position.copy(center).multiplyScalar(1.45).add(new THREE.Vector3(0, -7 + Math.sin(i * 2.3) * 5, 0)); neb.scale.setScalar(48 + (i % 3) * 8); scene.add(neb); nebulae.push(neb);
     const members = projects.filter((p) => p.cluster === k);
     const label = addLabel(`${c.label} · ${members.length}`, ring, "cluster", c.color, 2.9);
     clusterHubs[k] = { center, color, ring, members, label, agentMeshes: [], group: new THREE.Group() };
@@ -556,6 +605,7 @@
     controls.update();
     core.scale.setScalar(1 + Math.sin(s * 1.4) * 0.03); halo.scale.setScalar((models.core ? 1.35 : 1) * (1 + Math.sin(s * 1.4 + 1) * 0.08));
     if (models.core) models.core.rotation.y = s * 0.12;
+    belt.rotation.y = s * 0.012;
     for (const m of pickables) if (m.userData.kind === "project" && m.userData.spin) m.rotation.y = s * m.userData.spin;
     for (const ring of busyRings.values()) { ring.rotation.z = s * 1.2; ring.material.opacity = 0.55 + Math.sin(s * 3) * 0.3; }
     // sterren die verhuizen of verschijnen
@@ -572,8 +622,10 @@
       for (const m of hub.agentMeshes) {
         const u = m.userData, a = u.phase + s * u.speed * (reduceMotion ? 0 : 1);
         m.position.set(hub.center.x + Math.cos(a) * u.r, hub.center.y + 0.6 + Math.sin(a * 2) * 0.25, hub.center.z + Math.sin(a) * u.r);
-        m.rotation.y = s * 0.8;
+        if (u.ship) { const a2 = a + 0.05; m.lookAt(hub.center.x + Math.cos(a2) * u.r, hub.center.y + 0.6 + Math.sin(a2 * 2) * 0.25, hub.center.z + Math.sin(a2) * u.r); }
+        else m.rotation.y = s * 0.8;
       }
+      if (hub.ship) { hub.ship.rotation.y += 0.0015; hub.ship.position.y = hub.center.y + 1.1 + Math.sin(s * 0.7 + hub.center.x) * 0.2; }
     }
     for (const m of pickables) {
       if (m.userData.kind !== "project") continue;
