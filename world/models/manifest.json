@@ -31,5 +31,16 @@
     "bytes": 343668,
     "generated_at": "2026-09-13T19:54:14.312Z",
     "role": "cluster"
+  },
+  "ship-battle": {
+    "file": "ship-battle.glb",
+    "thumb": "ship-battle.png",
+    "mode": "preview",
+    "prompt": "stylized low-poly sci-fi small battleship gunship, compact angular hull with forward cannons and side thrusters, Guardians of the Galaxy inspired, game asset, long axis forward, no background",
+    "preview_task_id": "01a09c5f-fea1-7096-9f6c-f007545f6fc7",
+    "task_id": "01a09c5f-fea1-7096-9f6c-f007545f6fc7",
+    "bytes": 216836,
+    "generated_at": "2026-09-13T20:06:55.477Z",
+    "role": "project"
   }
 }
