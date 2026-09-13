@@ -15,10 +15,13 @@
 </header>
 
 <aside class="rail" id="rail">
-  <label class="search">
-    <span class="sr-only">Zoek project of agent</span>
-    <input id="q" type="search" placeholder="Zoek project of agent…" autocomplete="off" spellcheck="false">
-  </label>
+  <div class="railhead">
+    <label class="search">
+      <span class="sr-only">Zoek project of agent</span>
+      <input id="q" type="search" placeholder="Zoek project of agent…" autocomplete="off" spellcheck="false">
+    </label>
+    <button class="gear" id="settings-open" title="Taken instellen" aria-label="Taken instellen">⚙</button>
+  </div>
   <nav class="clusters" id="clusters" aria-label="Clusters"></nav>
   <section class="agents" aria-label="Agents">
     <h2>Agents</h2>
@@ -40,7 +43,35 @@
   <h3>Agents hier</h3>
   <ul class="chips" id="p-agents"></ul>
   <div class="links" id="p-links"></div>
+  <section class="task" id="task">
+    <h3>Taak starten</h3>
+    <p class="task-hint" id="task-hint"></p>
+    <form id="task-form" hidden>
+      <label class="sr-only" for="task-text">Wat moet Claude doen?</label>
+      <textarea id="task-text" rows="3" placeholder="Wat moet Claude doen in dit project?"></textarea>
+      <div class="task-row">
+        <button type="submit" id="task-go">Start in Claude Code</button>
+        <span class="task-status" id="task-status" aria-live="polite"></span>
+      </div>
+    </form>
+    <ul class="runs" id="runs"></ul>
+  </section>
 </aside>
+
+<dialog id="settings">
+  <form method="dialog" id="settings-form">
+    <h2>Taken instellen</h2>
+    <p>Adres van je Vercel-functie en het wachtwoord uit <code>HQ_PASSWORD</code>. Beide blijven alleen in deze browser staan.</p>
+    <label>API-adres<input id="set-api" type="url" placeholder="https://hq-bold700.vercel.app/api/fire" autocomplete="off"></label>
+    <label>Wachtwoord<input id="set-pass" type="password" autocomplete="off"></label>
+    <p class="task-status" id="set-status"></p>
+    <div class="task-row">
+      <button type="button" id="set-test" class="ghost">Verbinding testen</button>
+      <button type="submit" id="set-save">Opslaan</button>
+      <button type="button" id="set-close" class="ghost">Sluiten</button>
+    </div>
+  </form>
+</dialog>
 
 <footer class="legend">
   <span><i class="dot hot"></i>gepusht &lt; 30 dagen</span>

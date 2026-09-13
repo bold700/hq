@@ -157,6 +157,80 @@
     });
   });
 
+  // ---------- taken (Routines via api/fire.js) ----------
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  };
+  const taskCfg = () => ({ api: store.get("hq.taskApi", registry.task_api || ""), pass: store.get("hq.taskPass", "") });
+  let routineProjects = new Set();
+  const runs = store.get("hq.runs", []);
+  async function callApi(method, body) {
+    const { api, pass } = taskCfg();
+    if (!api || !pass) throw new Error("Nog niet ingesteld");
+    const r = await fetch(api, { method, headers: { "Content-Type": "application/json", "X-HQ-Password": pass }, body: body ? JSON.stringify(body) : undefined });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || `Fout ${r.status}`);
+    return data;
+  }
+  async function loadRoutines() {
+    const { api, pass } = taskCfg();
+    routineProjects = new Set();
+    if (api && pass) { try { routineProjects = new Set((await callApi("GET")).projects || []); } catch {} }
+    projects.forEach((p) => { if (p.li) p.li.querySelector(".run").hidden = !routineProjects.has(p.name); });
+    if (selected) renderTask(selected);
+  }
+  const relTime = (iso) => { const d = (Date.now() - Date.parse(iso)) / DAY; return d < 1 ? "vandaag" : `${Math.round(d)} d geleden`; };
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const readme = `https://github.com/${owner}/hq/blob/main/routines/README.md`;
+  function renderTask(p) {
+    const { api, pass } = taskCfg();
+    const hint = $("#task-hint"), form = $("#task-form"), st = $("#task-status");
+    st.textContent = ""; st.className = "task-status";
+    if (!api || !pass) {
+      hint.innerHTML = `Nog niet ingesteld. Klik op ⚙ in de zijbalk. Uitleg: <a href="${readme}" target="_blank" rel="noopener">routines/README.md</a>`;
+      form.hidden = true;
+    } else if (!routineProjects.has(p.name)) {
+      hint.innerHTML = `Geen Routine voor <b>${esc(p.name)}</b>. Maak er een aan en voeg hem toe aan HQ_ROUTINES (<a href="${readme}" target="_blank" rel="noopener">uitleg</a>).`;
+      form.hidden = true;
+    } else {
+      hint.textContent = "Claude start een cloud-sessie op dit project en opent een draft PR.";
+      form.hidden = false;
+    }
+    const mine = runs.filter((r) => r.project === p.name).slice(0, 5);
+    $("#runs").innerHTML = mine.map((r) => `<li><span><a href="${esc(r.session_url)}" target="_blank" rel="noopener">${esc(r.text)}</a></span><time>${relTime(r.started_at)}</time></li>`).join("");
+  }
+  $("#task-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!selected) return;
+    const text = $("#task-text").value.trim(); if (!text) return;
+    const btn = $("#task-go"), st = $("#task-status");
+    btn.disabled = true; st.className = "task-status"; st.textContent = "Starten…";
+    try {
+      const r = await callApi("POST", { project: selected.name, text });
+      runs.unshift({ project: selected.name, text, session_url: r.session_url, started_at: r.started_at || new Date().toISOString() });
+      runs.splice(30); store.set("hq.runs", runs);
+      $("#task-text").value = "";
+      renderTask(selected);
+      st.className = "task-status ok"; st.innerHTML = `Gestart · <a href="${esc(r.session_url)}" target="_blank" rel="noopener">open sessie</a>`;
+    } catch (err) {
+      st.className = "task-status err"; st.textContent = err.message;
+    } finally { btn.disabled = false; }
+  });
+  const dlg = $("#settings");
+  $("#settings-open").addEventListener("click", () => { const c = taskCfg(); $("#set-api").value = c.api; $("#set-pass").value = c.pass; $("#set-status").textContent = ""; $("#set-status").className = "task-status"; dlg.showModal(); });
+  $("#set-close").addEventListener("click", () => dlg.close());
+  $("#set-test").addEventListener("click", async () => {
+    const st = $("#set-status"); st.className = "task-status"; st.textContent = "Testen…";
+    try {
+      const r = await fetch($("#set-api").value.trim(), { headers: { "X-HQ-Password": $("#set-pass").value } });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || `Fout ${r.status}`);
+      st.className = "task-status ok"; st.textContent = `Verbonden · routines voor: ${(d.projects || []).join(", ") || "nog geen"}`;
+    } catch (err) { st.className = "task-status err"; st.textContent = err.message; }
+  });
+  $("#settings-form").addEventListener("submit", () => { store.set("hq.taskApi", $("#set-api").value.trim()); store.set("hq.taskPass", $("#set-pass").value); loadRoutines(); });
+
   // ---------- UI: rail ----------
   const clustersNav = $("#clusters");
   let activeCluster = null;
@@ -175,7 +249,7 @@
   projects.forEach((p) => {
     const li = document.createElement("li"); li.tabIndex = 0;
     li.style.setProperty("--c", clusters[p.cluster].color); li.style.setProperty("--o", 0.35 + heat(p.days) * 0.65);
-    li.innerHTML = `<i></i><span>${p.name}</span><time>${rel(p.days, p.pushed_at)}</time>`;
+    li.innerHTML = `<i></i><span>${p.name}<b class="run" hidden title="Routine beschikbaar">▶</b></span><time>${rel(p.days, p.pushed_at)}</time>`;
     li.addEventListener("click", () => select(p));
     li.addEventListener("keydown", (e) => { if (e.key === "Enter") select(p); });
     p.li = li; list.appendChild(li);
@@ -214,6 +288,7 @@
     for (const [k, v] of Object.entries(p.links)) links.push(`<a class="ghost" href="${v}" target="_blank" rel="noopener">${k}</a>`);
     links.push(`<a class="ghost" href="https://claude.ai/code" target="_blank" rel="noopener">Open in Claude Code</a>`);
     $("#p-links").innerHTML = links.join("");
+    renderTask(p);
     panel.hidden = false;
     if (p.mesh) flyTo(p.mesh.position, 9);
     p.li.scrollIntoView({ block: "nearest" });
@@ -299,6 +374,7 @@
     renderer.render(scene, camera);
   }
   requestAnimationFrame(tick);
+  loadRoutines();
 })().catch((err) => {
   document.body.insertAdjacentHTML("beforeend", `<pre style="position:fixed;inset:auto 16px 16px;padding:12px;background:#2a1010;color:#ffd2d2;border-radius:8px;font:12px/1.4 monospace;white-space:pre-wrap">De wereld kon niet laden: ${err.message}\nControleer of data/repos.json en data/registry.json bestaan.</pre>`);
   console.error(err);

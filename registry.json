@@ -2,6 +2,7 @@
   "$schema": "./docs/registry.schema.json",
   "owner": "bold700",
   "world_url": "https://bold700.github.io/hq/",
+  "task_api": "",
   "clusters": {
     "fitness":  { "label": "Fitness",        "color": "#ff6b4a", "agents": ["fitness-domain", "code-reviewer"] },
     "penpot":   { "label": "Penpot & tokens", "color": "#7c5cff", "agents": ["penpot-expert", "design-system-guardian", "code-reviewer"] },

@@ -43,3 +43,7 @@ cd world && python3 -m http.server 8000
 ```
 
 Open http://localhost:8000. De pagina haalt de repolijst live op uit de GitHub API en vult aan met `data/repos.json` (privé repos, fallback). `data/registry.json` wordt bij elke deploy ververst uit `registry.json`. Pages-bron: GitHub Actions; de map `world/` is de site-root.
+
+## Taken starten vanuit de wereld
+
+Klik op een ster, typ wat Claude moet doen en klik **Start in Claude Code**. De wereld stuurt de taak naar `api/fire.js` (op Vercel), die de Routine van dat project start en de sessie-link teruggeeft. Eenmalig inrichten: zie [routines/README.md](routines/README.md).
