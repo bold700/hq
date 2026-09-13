@@ -79,7 +79,62 @@
   const key = new THREE.PointLight(0xffe2a8, 1.6, 0, 1.6); key.position.set(0, 4, 0); scene.add(key); // het HQ-station als zon: dag- en nachtzijde op de planeten
   const fill = new THREE.DirectionalLight(0x8fa8ff, 0.25); fill.position.set(-30, 40, -20); scene.add(fill);
 
-  // sterrenhemel
+  // galaxy-achtergrond (gratis): Melkweg-band met stofwolken, nevelvlekken en duizenden sterren op een grote bol om alles heen
+  {
+    const w = 2048, h = 1024, cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+    const ctx = cv.getContext("2d");
+    ctx.fillStyle = "#070a14"; ctx.fillRect(0, 0, w, h);
+    const noise = makeNoise(4242), dust = makeNoise(9001);
+    const img = ctx.getImageData(0, 0, w, h); const d = img.data;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const u = x / w, v = y / h;
+      // schuine band: afstand tot een sinusvormige "grote cirkel"
+      const bandY = 0.5 + 0.16 * Math.sin(u * Math.PI * 2 + 0.8);
+      const dist = Math.abs(v - bandY) / 0.13;
+      const core = Math.exp(-dist * dist);
+      const nx = Math.cos(u * Math.PI * 2) * 4 + 20, ny = Math.sin(u * Math.PI * 2) * 4 + 20;
+      const n = noise(nx + v * 9, ny + v * 9, 5), dk = dust(nx * 1.7 + v * 14, ny * 1.7 + v * 14, 4);
+      const lane = Math.pow(Math.max(0, dk - 0.45) * 2.2, 1.6); // donkere stoflanen
+      let b = core * (0.55 + n * 0.9) * (1 - lane * 0.85) + Math.max(0, n - 0.62) * 0.35 * (1 - dist * 0.25);
+      b = Math.max(0, b);
+      const i = (y * w + x) * 4;
+      // warm in de kern, koeler aan de rand
+      b *= 0.42;
+      d[i] = Math.min(255, 7 + b * 170); d[i + 1] = Math.min(255, 10 + b * 150); d[i + 2] = Math.min(255, 20 + b * 150 + core * 14);
+    }
+    ctx.putImageData(img, 0, 0);
+    // nevelvlekken in de clusterkleuren, ver weg en vaag
+    ctx.globalCompositeOperation = "lighter";
+    Object.values(clusters).forEach((c, i) => {
+      const cx = (0.1 + (i * 0.37) % 0.9) * w, cy = (0.3 + (i * 0.23) % 0.45) * h, r = 120 + (i % 3) * 70;
+      const col = new THREE.Color(c.color); const rgb = `${Math.round(col.r * 255)},${Math.round(col.g * 255)},${Math.round(col.b * 255)}`;
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r); g.addColorStop(0, `rgba(${rgb},0.16)`); g.addColorStop(0.5, `rgba(${rgb},0.06)`); g.addColorStop(1, `rgba(${rgb},0)`);
+      ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(cx, cy, r * 1.4, r * 0.8, i, 0, Math.PI * 2); ctx.fill();
+    });
+    // sterren: veel kleine, een paar grote met gloed, dichter in de band
+    let seed = 77; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 6000; i++) {
+      const x = rnd() * w, y = rnd() * h; const bandY = 0.5 + 0.16 * Math.sin((x / w) * Math.PI * 2 + 0.8);
+      const near = Math.exp(-Math.pow((y / h - bandY) / 0.16, 2));
+      if (rnd() > 0.35 + near * 0.65) continue;
+      const big = rnd() < 0.012, s = big ? 0.9 + rnd() * 0.8 : 0.25 + rnd() * 0.55, a = 0.2 + rnd() * 0.5;
+      const warm = rnd() < 0.25; ctx.fillStyle = warm ? `rgba(255,225,190,${a})` : `rgba(220,232,255,${a})`;
+      ctx.beginPath(); ctx.arc(x, y, s, 0, Math.PI * 2); ctx.fill();
+      if (big) { const g = ctx.createRadialGradient(x, y, 0, x, y, s * 4); g.addColorStop(0, warm ? "rgba(255,220,170,0.28)" : "rgba(200,220,255,0.28)"); g.addColorStop(1, "rgba(0,0,0,0)"); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, s * 4, 0, Math.PI * 2); ctx.fill(); }
+    }
+    // twee verre sterrenstelsels
+    for (let i = 0; i < 2; i++) {
+      const x = (0.2 + i * 0.55) * w, y = (0.18 + i * 0.6) * h;
+      ctx.save(); ctx.translate(x, y); ctx.rotate(0.6 + i);
+      const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 60); g.addColorStop(0, "rgba(255,240,220,0.3)"); g.addColorStop(0.3, "rgba(200,190,255,0.1)"); g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(0, 0, 70, 24, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    }
+    const tex = new THREE.CanvasTexture(cv); tex.mapping = THREE.EquirectangularReflectionMapping;
+    const sky = new THREE.Mesh(new THREE.SphereGeometry(320, 48, 32), new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, fog: false, depthWrite: false }));
+    sky.rotation.y = 0.4; sky.rotation.z = 0.22; sky.renderOrder = -10; scene.add(sky);
+  }
+
+  // sterrenhemel (losse puntsterren voor diepte)
   {
     const n = 1800, pos = new Float32Array(n * 3);
     for (let i = 0; i < n; i++) {
