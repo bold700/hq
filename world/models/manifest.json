@@ -20,5 +20,16 @@
     "bytes": 254164,
     "generated_at": "2026-09-13T19:51:26.321Z",
     "role": "agent"
+  },
+  "ship-cruiser": {
+    "file": "ship-cruiser.glb",
+    "thumb": "ship-cruiser.png",
+    "mode": "preview",
+    "prompt": "stylized low-poly sci-fi capital ship, long elegant cruiser hull with a raised command bridge, side wings and large rear engines, Guardians of the Galaxy inspired, game asset, long axis forward, no background",
+    "preview_task_id": "01a09c54-32ee-72a7-b191-e794ba348ed1",
+    "task_id": "01a09c54-32ee-72a7-b191-e794ba348ed1",
+    "bytes": 343668,
+    "generated_at": "2026-09-13T19:54:14.312Z",
+    "role": "cluster"
   }
 }
