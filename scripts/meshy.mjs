@@ -58,7 +58,7 @@ if (task.thumbnail_url) {
   try { writeFileSync(join(root, "world/models", `${name}.png`), Buffer.from(await (await fetch(task.thumbnail_url)).arrayBuffer())); thumb = `${name}.png`; } catch {}
 }
 const manifest = readManifest();
-manifest[name] = { file: `${name}.glb`, thumb, mode, prompt: args.prompt || manifest[name]?.prompt || "", preview_task_id: mode === "preview" ? task.id : manifest[name]?.preview_task_id, task_id: task.id, bytes: glb.length, generated_at: new Date().toISOString(), role: args.role || manifest[name]?.role || "" };
+manifest[name] = { ...(manifest[name] || {}), file: `${name}.glb`, thumb, mode, prompt: args.prompt || manifest[name]?.prompt || "", preview_task_id: mode === "preview" ? task.id : manifest[name]?.preview_task_id, task_id: task.id, bytes: glb.length, generated_at: new Date().toISOString(), role: args.role || manifest[name]?.role || "" };
 writeFileSync(join(root, "world/models/manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
 console.log(`klaar: world/models/${name}.glb (${Math.round(glb.length / 1024)} kB)`);
 
