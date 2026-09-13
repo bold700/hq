@@ -223,7 +223,7 @@
   const core = new THREE.Mesh(new THREE.SphereGeometry(1.6, 48, 48), new THREE.MeshStandardMaterial({ color: 0xffd27a, emissive: 0xffb84a, emissiveIntensity: 0.9, roughness: 0.4 }));
   scene.add(core);
   const halo = new THREE.Mesh(new THREE.SphereGeometry(2.6, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffd27a, transparent: true, opacity: 0.08 }));
-  scene.add(halo);
+  halo.visible = false; // geen gloedbol: het station spreekt voor zich
   // 3D-modellen uit models/ (Meshy): rol "core" = HQ-station, "agent" = jager voor alle agents, "cluster" = moederschip per stelsel.
   const models = { core: null, agent: null, cluster: null, project: null };
   const goldMat = (tint) => new THREE.MeshStandardMaterial({ color: tint ? new THREE.Color(0xe6b862).lerp(new THREE.Color(tint), 0.45) : 0xe6b862, metalness: 0.65, roughness: 0.38, emissive: tint ? new THREE.Color(tint).multiplyScalar(0.25) : new THREE.Color(0x4a3208), emissiveIntensity: 0.55 });
@@ -373,12 +373,10 @@
     const ang = (i / clusterKeys.length) * Math.PI * 2 - Math.PI / 2;
     const center = new THREE.Vector3(Math.cos(ang) * R, Math.sin(i * 1.7) * 2.5, Math.sin(ang) * R);
     const color = new THREE.Color(c.color);
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(2.2, 0.05, 8, 64), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.7 }));
+    // Geen schijven of vaste ringen: de groepering zie je aan bakens en datalinks. De ring dient alleen als markering
+    // van het geselecteerde stelsel (clusterknop) en is verder onzichtbaar; het label hangt eraan.
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(2.6, 0.04, 8, 64), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0, fog: false, depthWrite: false }));
     ring.position.copy(center); ring.rotation.x = Math.PI / 2; scene.add(ring);
-    const disc = new THREE.Mesh(new THREE.RingGeometry(2.4, 9.5, 64), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.035, side: THREE.DoubleSide, depthWrite: false }));
-    disc.position.copy(center); disc.rotation.x = -Math.PI / 2; scene.add(disc);
-    const link = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), center]), new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.18 }));
-    scene.add(link);
     const neb = new THREE.Sprite(new THREE.SpriteMaterial({ map: nebulaTexture(c.color), transparent: true, opacity: 0.32, depthWrite: false, blending: THREE.AdditiveBlending }));
     // ver naar achteren en vaag: sfeer op de achtergrond, niet in de weg van de vloot
     neb.material.opacity = 0.11;
@@ -657,7 +655,7 @@
       const has = busyRings.has(p.name);
       if (busy.has(p.name) && !has && p.mesh) {
         const r = p.mesh.geometry.parameters.radius;
-        const ring = new THREE.Mesh(new THREE.TorusGeometry(r * 2.2, 0.06, 8, 48), new THREE.MeshBasicMaterial({ color: 0xffd27a, transparent: true, opacity: 0.85 }));
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(r * 2.2, 0.06, 8, 48), new THREE.MeshBasicMaterial({ color: 0xffd27a, transparent: true, opacity: 0.85, fog: false, depthWrite: false }));
         ring.position.copy(p.mesh.position); ring.rotation.x = Math.PI / 3; scene.add(ring); busyRings.set(p.name, ring);
       } else if (!busy.has(p.name) && has) {
         scene.remove(busyRings.get(p.name)); busyRings.delete(p.name);
@@ -754,6 +752,7 @@
   function applyFilter() {
     const term = q.value.trim().toLowerCase();
     clustersNav.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.k === activeCluster));
+    for (const k of clusterKeys) clusterHubs[k].ring.material.opacity = k === activeCluster ? 0.7 : 0;
     projects.forEach((p) => {
       const hit = (!term || p.name.toLowerCase().includes(term) || p.description.toLowerCase().includes(term) || p.agents.some((a) => a.includes(term)))
         && (!activeCluster || p.cluster === activeCluster);
