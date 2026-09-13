@@ -191,13 +191,17 @@
   const RUN_TIMEOUT = 90 * 60000;
   // Taken zonder status komen van vóór deze weergave; die tellen ook als "bezig" tot er een PR gevonden is.
   const isRunning = (r) => r.status !== "done" && Date.now() - Date.parse(r.started_at) < RUN_TIMEOUT;
+  const needsCheck = (r) => isRunning(r) || (r.status === "done" && !r.pr.merged && Date.now() - Date.parse(r.started_at) < 7 * DAY);
   function runStatus(r) {
-    if (r.status === "done") return `<a class="st ok" href="${esc(r.pr.url)}" target="_blank" rel="noopener" title="${esc(r.pr.title)}">✓ PR #${r.pr.number}</a>`;
+    if (r.status === "done") {
+      const label = r.pr.merged ? `✓ #${r.pr.number} gemerged` : `PR #${r.pr.number} · wacht op merge`;
+      return `<a class="st ${r.pr.merged ? "ok" : "wait"}" href="${esc(r.pr.url)}" target="_blank" rel="noopener" title="${esc(r.pr.title)}${r.pr.merged ? "" : " · klik om te bekijken en te mergen; daarna verandert de wereld"}">${label}</a>`;
+    }
     if (isRunning(r)) return `<span class="st busy" title="Claude is bezig; open de sessie om mee te kijken">⟳ bezig · ${elapsed(r.started_at)}</span>`;
     return `<a class="st" href="${esc(r.session_url)}" target="_blank" rel="noopener">geen PR gezien · open sessie</a>`;
   }
   async function pollRuns() {
-    const open = runs.filter(isRunning);
+    const open = runs.filter(needsCheck);
     const byProject = new Map();
     for (const r of open) if (!byProject.has(r.project)) byProject.set(r.project, []);
     for (const r of open) byProject.get(r.project).push(r);
@@ -207,9 +211,14 @@
         if (!res.ok) continue;
         const prs = await res.json();
         for (const r of list) {
+          if (r.status === "done") {
+            const cur = prs.find((x) => x.number === r.pr.number);
+            if (cur) r.pr.merged = !!cur.merged_at;
+            continue;
+          }
           const since = Date.parse(r.started_at) - 2 * 60000;
           const pr = prs.find((x) => x.head && /^claude\//.test(x.head.ref) && Date.parse(x.created_at) >= since && !runs.some((o) => o !== r && o.pr && o.pr.number === x.number));
-          if (pr) { r.status = "done"; r.pr = { number: pr.number, url: pr.html_url, title: pr.title }; }
+          if (pr) { r.status = "done"; r.pr = { number: pr.number, url: pr.html_url, title: pr.title, merged: !!pr.merged_at }; }
         }
       } catch {}
     }
@@ -232,7 +241,7 @@
       }
     }
   }
-  setInterval(() => { if (runs.some(isRunning)) pollRuns(); else if (selected) renderTask(selected); }, 90000);
+  setInterval(() => { if (runs.some(needsCheck)) pollRuns(); else if (selected) renderTask(selected); }, 90000);
   function renderTask(p) {
     const { api, pass } = taskCfg();
     const hint = $("#task-hint"), form = $("#task-form"), st = $("#task-status");
@@ -429,7 +438,7 @@
   requestAnimationFrame(tick);
   loadRoutines();
   syncBusy();
-  if (runs.some(isRunning)) pollRuns();
+  if (runs.some(needsCheck)) pollRuns();
 })().catch((err) => {
   document.body.insertAdjacentHTML("beforeend", `<pre style="position:fixed;inset:auto 16px 16px;padding:12px;background:#2a1010;color:#ffd2d2;border-radius:8px;font:12px/1.4 monospace;white-space:pre-wrap">De wereld kon niet laden: ${err.message}\nControleer of data/repos.json en data/registry.json bestaan.</pre>`);
   console.error(err);
