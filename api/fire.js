@@ -56,10 +56,13 @@ module.exports = async (req, res) => {
     },
     body: JSON.stringify({ text: text.trim() }),
   });
-  const data = await upstream.json().catch(() => ({}));
+  const raw = await upstream.text();
+  let data = {};
+  try { data = JSON.parse(raw); } catch {}
   if (!upstream.ok) {
-    const msg = (data && data.error && data.error.message) || `Anthropic antwoordde ${upstream.status}`;
-    return res.status(upstream.status === 401 ? 502 : upstream.status).json({ error: msg });
+    const detail = (data && data.error && data.error.message) || raw.slice(0, 200) || "geen toelichting";
+    const hint = upstream.status === 404 ? " Controleer of het id in HQ_ROUTINES het trig_… uit de API-trigger-URL is." : "";
+    return res.status(upstream.status === 401 ? 502 : upstream.status).json({ error: `Anthropic antwoordde ${upstream.status}: ${detail}.${hint}` });
   }
   return res.status(200).json({
     project,
