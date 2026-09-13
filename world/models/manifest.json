@@ -1,1 +1,13 @@
-{}
+{
+  "hq-station": {
+    "file": "hq-station.glb",
+    "thumb": "hq-station.png",
+    "mode": "preview",
+    "prompt": "stylized low-poly sci-fi space station hub, compact and symmetrical, central golden core with a glowing ring, small docking arms, clean game asset, dark navy and warm gold color scheme, no background",
+    "preview_task_id": "01a09c48-6c42-723b-a1c6-632763189c6d",
+    "task_id": "01a09c48-6c42-723b-a1c6-632763189c6d",
+    "bytes": 397616,
+    "generated_at": "2026-09-13T19:41:41.220Z",
+    "role": "core"
+  }
+}
