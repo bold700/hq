@@ -105,7 +105,10 @@
         const box = new THREE.Box3().setFromObject(obj); const size = box.getSize(new THREE.Vector3()); const c = box.getCenter(new THREE.Vector3());
         const s = 4.2 / Math.max(size.x, size.y, size.z);
         obj.scale.setScalar(s); obj.position.sub(c.multiplyScalar(s));
-        obj.traverse((n) => { if (n.isMesh && n.material) { n.material.roughness = Math.min(0.8, n.material.roughness ?? 0.6); n.material.emissive = n.material.emissive || new THREE.Color(0x000000); } });
+        // Preview-modellen van Meshy zijn ongetextureerd; geef ze de gouden HQ-look. Getextureerde modellen laten we met rust.
+        const gold = new THREE.MeshStandardMaterial({ color: 0xe6b862, metalness: 0.65, roughness: 0.38, emissive: 0x4a3208, emissiveIntensity: 0.55 });
+        obj.traverse((n) => { if (n.isMesh) { if (!n.material || !n.material.map) n.material = gold; else { n.material.roughness = Math.min(0.8, n.material.roughness ?? 0.6); } } });
+        const rim = new THREE.PointLight(0xffe2a8, 1.2, 14, 2); rim.position.set(3, 4, 3); obj.add(rim);
         const group = new THREE.Group(); group.add(obj); scene.add(group);
         core.visible = false; halo.scale.setScalar(1.35);
         models.core = group;
