@@ -75,8 +75,9 @@
   controls.autoRotate = !reduceMotion; controls.autoRotateSpeed = 0.25;
   canvas.addEventListener("pointerdown", () => (controls.autoRotate = false), { once: true });
 
-  scene.add(new THREE.AmbientLight(0x8090c0, 0.35));
-  const key = new THREE.PointLight(0xffe2a8, 1.4, 0, 2); key.position.set(0, 12, 0); scene.add(key);
+  scene.add(new THREE.AmbientLight(0x6070a0, 0.22));
+  const key = new THREE.PointLight(0xffe2a8, 1.6, 0, 1.6); key.position.set(0, 4, 0); scene.add(key); // het HQ-station als zon: dag- en nachtzijde op de planeten
+  const fill = new THREE.DirectionalLight(0x8fa8ff, 0.25); fill.position.set(-30, 40, -20); scene.add(fill);
 
   // sterrenhemel
   {
@@ -176,7 +177,16 @@
     const wrap = new THREE.Group();
     const s = targetSize / Math.max(size.x, size.y, size.z);
     obj.scale.setScalar(s); obj.position.sub(c.multiplyScalar(s));
-    if (alongZ && size.x > size.z) obj.rotation.y = -Math.PI / 2; // lange as van het schip langs Z, zodat lookAt "vooruit" is
+    if (alongZ) {
+      // Lange as van het schip langs Z, en de neus (het smalle eind) naar +Z, zodat lookAt "vooruit" is.
+      if (size.x > size.z) obj.rotation.y = -Math.PI / 2;
+      obj.updateMatrixWorld(true);
+      const v = new THREE.Vector3(); let front = 0, back = 0, nf = 0, nb = 0, zmin = Infinity, zmax = -Infinity; const pts = [];
+      obj.traverse((n) => { if (n.isMesh && n.geometry.attributes.position) { const a = n.geometry.attributes.position; const step = Math.max(1, Math.floor(a.count / 4000)); for (let i = 0; i < a.count; i += step) { v.fromBufferAttribute(a, i); n.localToWorld(v); pts.push(v.x, v.y, v.z); zmin = Math.min(zmin, v.z); zmax = Math.max(zmax, v.z); } } });
+      const edge = (zmax - zmin) * 0.22;
+      for (let i = 0; i < pts.length; i += 3) { const w = Math.abs(pts[i]) + Math.abs(pts[i + 1]); if (pts[i + 2] > zmax - edge) { front += w; nf++; } else if (pts[i + 2] < zmin + edge) { back += w; nb++; } }
+      if (nf && nb && front / nf > back / nb) obj.rotation.y += Math.PI; // voorkant is breder dan achterkant: omdraaien
+    }
     // Preview-modellen van Meshy zijn ongetextureerd; geef ze de gouden HQ-look. Getextureerde modellen laten we met rust.
     obj.traverse((n) => { if (n.isMesh) { if (!n.material || !n.material.map) n.material = goldMat(); else n.material.roughness = Math.min(0.8, n.material.roughness ?? 0.6); } });
     wrap.add(obj); return wrap;
@@ -211,23 +221,55 @@
 
   // Planeet-look voor de projectbollen: procedurele textuur per clusterkleur (gratis, geen assets nodig)
   const planetTextures = {};
-  function planetTexture(hex) {
-    if (planetTextures[hex]) return planetTextures[hex];
-    const w = 256, h = 128, cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+  const hashStr = (s) => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h || 1; };
+  const PLANET_TYPES = ["rots", "gas", "ijs", "lava", "oceaan"];
+  const planetType = (name) => PLANET_TYPES[hashStr(name) % PLANET_TYPES.length];
+  // Ruis (value noise + fbm) voor continenten, wolkenbanden, ijs en lava. Naadloos in de breedte.
+  function makeNoise(seed) {
+    let s = seed; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    const N = 64, grid = new Float32Array(N * N); for (let i = 0; i < grid.length; i++) grid[i] = rnd();
+    const sm = (t) => t * t * (3 - 2 * t);
+    const val = (x, y) => { const xi = Math.floor(x), yi = Math.floor(y), fx = sm(x - xi), fy = sm(y - yi); const g = (a, b) => grid[((b % N + N) % N) * N + ((a % N + N) % N)]; return (g(xi, yi) * (1 - fx) + g(xi + 1, yi) * fx) * (1 - fy) + (g(xi, yi + 1) * (1 - fx) + g(xi + 1, yi + 1) * fx) * fy; };
+    return (x, y, oct = 4) => { let a = 0, amp = 0.5, f = 1; for (let o = 0; o < oct; o++) { a += val(x * f, y * f) * amp; amp *= 0.5; f *= 2; } return a; };
+  }
+  function planetTexture(hex, type, name) {
+    const key = `${hex}|${type}|${hashStr(name) % 7}`;
+    if (planetTextures[key]) return planetTextures[key];
+    const w = 512, h = 256, cv = document.createElement("canvas"); cv.width = w; cv.height = h;
     const ctx = cv.getContext("2d"); const base = new THREE.Color(hex);
     const img = ctx.createImageData(w, h); const d = img.data;
-    let seed = parseInt(hex.slice(1), 16) || 1; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    const bands = 3 + Math.floor(rnd() * 3), offs = Array.from({ length: 4 }, () => rnd() * Math.PI * 2);
+    const noise = makeNoise(hashStr(key));
+    const light = base.clone().lerp(new THREE.Color(0xffffff), 0.55), dark = base.clone().multiplyScalar(0.28), deep = base.clone().lerp(new THREE.Color(0x0b1030), 0.6);
+    const put = (i, c, k = 1) => { d[i] = 255 * Math.min(1, c.r * k); d[i + 1] = 255 * Math.min(1, c.g * k); d[i + 2] = 255 * Math.min(1, c.b * k); d[i + 3] = 255; };
+    const tmp = new THREE.Color();
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const u = x / w, v = y / h;
-      let n = 0.5 + 0.22 * Math.sin(v * Math.PI * bands + Math.sin(u * Math.PI * 2 + offs[0]) * 0.8 + offs[1]) + 0.14 * Math.sin(u * Math.PI * 6 + v * 5 + offs[2]) + 0.1 * Math.sin((u + v) * 17 + offs[3]);
-      n = Math.max(0, Math.min(1, n));
-      const i = (y * w + x) * 4;
-      d[i] = 255 * base.r * (0.55 + 0.6 * n); d[i + 1] = 255 * base.g * (0.55 + 0.6 * n); d[i + 2] = 255 * base.b * (0.6 + 0.5 * n); d[i + 3] = 255;
+      const u = x / w, v = y / h, i = (y * w + x) * 4;
+      // naadloos: sample op een cilinder
+      const nx = Math.cos(u * Math.PI * 2) * 3 + 10, ny = Math.sin(u * Math.PI * 2) * 3 + 10;
+      const n = noise(nx + v * 6, ny + v * 6, 5);
+      const lat = Math.abs(v - 0.5) * 2;
+      if (type === "gas") {
+        const band = 0.5 + 0.5 * Math.sin(v * Math.PI * 9 + (n - 0.5) * 6);
+        put(i, tmp.copy(dark).lerp(light, band * 0.85 + (n - 0.5) * 0.3));
+      } else if (type === "ijs") {
+        const crack = n > 0.62 ? 1 : 0;
+        put(i, tmp.copy(base).lerp(new THREE.Color(0xf2f7ff), 0.55 + 0.35 * n - crack * 0.5));
+      } else if (type === "lava") {
+        const vein = Math.pow(Math.max(0, 1 - Math.abs(n - 0.55) * 9), 2);
+        put(i, tmp.copy(new THREE.Color(0x1a1512)).lerp(light, vein * 1.1 + n * 0.12));
+      } else if (type === "oceaan") {
+        const land = n > 0.58 ? (n - 0.58) / 0.42 : -1;
+        if (land < 0) put(i, tmp.copy(deep).lerp(base, 0.25 + n * 0.5)); else put(i, tmp.copy(base).lerp(light, 0.3 + land * 0.7));
+        if (lat > 0.86) put(i, tmp.copy(new THREE.Color(0xeef4ff)).lerp(base, 0.15));
+      } else { // rots
+        const land = n > 0.5 ? (n - 0.5) / 0.5 : 0;
+        put(i, tmp.copy(dark).lerp(light, 0.15 + land * 0.8 + (n - 0.5) * 0.2));
+        if (lat > 0.9) put(i, tmp.copy(new THREE.Color(0xeef4ff)).lerp(base, 0.25));
+      }
     }
     ctx.putImageData(img, 0, 0);
-    const tex = new THREE.CanvasTexture(cv); tex.wrapS = THREE.RepeatWrapping;
-    return (planetTextures[hex] = tex);
+    const tex = new THREE.CanvasTexture(cv); tex.wrapS = THREE.RepeatWrapping; tex.anisotropy = 4;
+    return (planetTextures[key] = tex);
   }
 
   const labels = $("#labels");
@@ -266,7 +308,9 @@
     // agents als satellieten rond de ring
     (c.agents || []).forEach((a, j) => {
       const m = new THREE.Mesh(new THREE.OctahedronGeometry(0.42), new THREE.MeshStandardMaterial({ color: 0xffd27a, emissive: 0xffb84a, emissiveIntensity: 0.5, flatShading: true }));
-      m.userData = { kind: "agent", name: a, cluster: k, phase: (j / (c.agents.length || 1)) * Math.PI * 2, r: 3.4 + j * 0.35, speed: 0.25 + j * 0.05 };
+      // Eigen baan per jager: ellips met kanteling, eigen snelheid en een langzame drift, zodat ze tussen de planeten door zwerven.
+      const seed = hashStr(k + a); const rr = (n) => ((seed >> (n * 5)) & 31) / 31;
+      m.userData = { kind: "agent", name: a, cluster: k, phase: rr(0) * Math.PI * 2, rx: 3.2 + rr(1) * 3.5, rz: 3.2 + rr(2) * 3.5, tilt: rr(3) * Math.PI, inc: 0.2 + rr(4) * 0.9, speed: (0.12 + rr(5) * 0.22) * (rr(6) > 0.5 ? 1 : -1), drift: 0.05 + rr(7) * 0.1 };
       scene.add(m); pickables.push(m); clusterHubs[k].agentMeshes.push(m);
       addLabel(a, m, "agent", null, 0.8);
     });
@@ -288,18 +332,18 @@
     const size = 0.28 + h * 0.75;
     const mat = p.status === "archived"
       ? new THREE.MeshBasicMaterial({ color: 0x5d6580, wireframe: true })
-      : new THREE.MeshStandardMaterial({ map: planetTexture(clusters[k].color), color: new THREE.Color(0xffffff).lerp(color, 0.25), emissive: color, emissiveIntensity: 0.08 + h * 0.7, roughness: 0.75, metalness: 0.05 });
-    const m = new THREE.Mesh(new THREE.SphereGeometry(size, 32, 32), mat);
+      : new THREE.MeshStandardMaterial({ map: planetTexture(clusters[k].color, planetType(p.name), p.name), emissive: color, emissiveIntensity: 0.03 + h * 0.16, roughness: planetType(p.name) === "ijs" ? 0.45 : 0.9, metalness: 0 });
+    const m = new THREE.Mesh(new THREE.SphereGeometry(size, 40, 40), mat);
     m.position.copy(animateFrom || pos); m.userData = { kind: "project", p, baseScale: 1, spin: 0.08 + Math.random() * 0.25, tilt: (Math.random() - 0.5) * 0.6 };
     m.rotation.z = m.userData.tilt;
     scene.add(m); pickables.push(m); p.mesh = m; p.extras = [];
-    if (p.status !== "archived" && (p.name.length % 4 === 0)) { // af en toe een ring, deterministisch per naam
-      const ringM = new THREE.Mesh(new THREE.RingGeometry(size * 1.45, size * 2.1, 48), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.35, side: THREE.DoubleSide }));
-      ringM.position.copy(m.position); ringM.rotation.x = Math.PI / 2.4 + m.userData.tilt; scene.add(ringM); p.extras.push(ringM);
+    if (p.status !== "archived") { // dunne dampkring: iets grotere bol, van binnenuit gezien, additief
+      const atm = new THREE.Mesh(new THREE.SphereGeometry(size * 1.06, 32, 32), new THREE.MeshBasicMaterial({ color: color.clone().lerp(new THREE.Color(0xffffff), 0.4), transparent: true, opacity: 0.16 + h * 0.14, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false }));
+      atm.position.copy(m.position); scene.add(atm); p.extras.push(atm);
     }
-    if (h >= 1) { // gloed voor verse repos
-      const g = new THREE.Mesh(new THREE.SphereGeometry(size * 1.9, 16, 16), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.12 }));
-      g.position.copy(m.position); scene.add(g); p.extras.push(g);
+    if (p.status !== "archived" && (p.name.length % 4 === 0)) { // af en toe een ring, deterministisch per naam
+      const ringM = new THREE.Mesh(new THREE.RingGeometry(size * 1.45, size * 2.1, 48), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false }));
+      ringM.position.copy(m.position); ringM.rotation.x = Math.PI / 2.4 + m.userData.tilt; scene.add(ringM); p.extras.push(ringM);
     }
     if (p.private) {
       const lock = new THREE.Mesh(new THREE.TorusGeometry(size * 1.35, 0.035, 6, 32), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35 }));
@@ -317,7 +361,7 @@
     const to = starPos(k, hub.members.length - 1, heat(p.days));
     if (p.mesh && p.mesh.material.emissive) { p.mesh.material.emissive.copy(hub.color); p.mesh.material.color.copy(hub.color.clone().lerp(new THREE.Color(0xffffff), heat(p.days) * 0.45)); }
     for (const e of p.extras || []) if (e.material.color && e.geometry.type !== "TorusGeometry") e.material.color.copy(hub.color);
-    if (p.mesh && p.mesh.material.map) { p.mesh.material.map = planetTexture(clusters[k].color); p.mesh.material.needsUpdate = true; }
+    if (p.mesh && p.mesh.material.map) { p.mesh.material.map = planetTexture(clusters[k].color, planetType(p.name), p.name); p.mesh.material.needsUpdate = true; }
     moves.push({ p, from: p.mesh.position.clone(), to, t0: performance.now(), dur: reduceMotion ? 1 : 2200, arc: 6 });
     if (p.li) p.li.style.setProperty("--c", clusters[k].color);
     updateClusterCounts();
@@ -671,8 +715,14 @@
       const hub = clusterHubs[k];
       for (const m of hub.agentMeshes) {
         const u = m.userData, a = u.phase + s * u.speed * (reduceMotion ? 0 : 1);
-        m.position.set(hub.center.x + Math.cos(a) * u.r, hub.center.y + 0.6 + Math.sin(a * 2) * 0.25, hub.center.z + Math.sin(a) * u.r);
-        if (u.ship) { const a2 = a + 0.05; m.lookAt(hub.center.x + Math.cos(a2) * u.r, hub.center.y + 0.6 + Math.sin(a2 * 2) * 0.25, hub.center.z + Math.sin(a2) * u.r); }
+        const orbit = (t) => { // ellips in een gekanteld vlak, met langzame ademende straal
+          const g = 1 + 0.18 * Math.sin(s * u.drift + u.phase);
+          const ex = Math.cos(t) * u.rx * g, ez = Math.sin(t) * u.rz * g;
+          const x = ex * Math.cos(u.tilt) - ez * Math.sin(u.tilt), z = ex * Math.sin(u.tilt) + ez * Math.cos(u.tilt);
+          return [hub.center.x + x, hub.center.y + 0.7 + Math.sin(t) * u.inc + Math.sin(t * 3 + u.phase) * 0.15, hub.center.z + z];
+        };
+        const [x, y, z] = orbit(a); m.position.set(x, y, z);
+        if (u.ship) { const [x2, y2, z2] = orbit(a + 0.04 * Math.sign(u.speed)); m.lookAt(x2, y2, z2); }
         else m.rotation.y = s * 0.8;
       }
       if (hub.ship) { hub.ship.rotation.y += 0.0015; hub.ship.position.y = hub.center.y + 1.1 + Math.sin(s * 0.7 + hub.center.x) * 0.2; }
