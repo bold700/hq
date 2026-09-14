@@ -8,7 +8,8 @@
     if (window.HQ_DATA) return window.HQ_DATA;
     const json = (u) => fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`${u}: ${r.status}`))));
     // Registry: de kopie in data/ (wordt bij elke deploy ververst), anders uit de repo-root.
-    const registry = await json("data/registry.json").catch(() => json("../registry.json"));
+    // Registry: altijd vers van main (raw GitHub), anders de kopie in data/.
+    const registry = await json(`https://raw.githubusercontent.com/bold700/hq/main/registry.json?v=${Date.now()}`).catch(() => json("data/registry.json"));
     // Repos: live uit de GitHub API (publiek), aangevuld met de snapshot (privé en beschrijvingen).
     const snapshot = await json("data/repos.json").catch(() => ({ repos: [] }));
     let live = null;
@@ -532,7 +533,11 @@
     get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
   };
-  const taskCfg = () => ({ api: store.get("hq.taskApi", registry.task_api || ""), pass: store.get("hq.taskPass", ""), gh: store.get("hq.ghToken", "") });
+  // Op Vercel (achter de login) is de taak-API dezelfde site en volstaat de sessiecookie; elders is een adres plus wachtwoord nodig.
+  const onVercel = /\.vercel\.app$/.test(location.hostname);
+  const taskCfg = () => ({ api: store.get("hq.taskApi", registry.task_api || (onVercel ? `${location.origin}/api/fire` : "")), pass: store.get("hq.taskPass", ""), gh: store.get("hq.ghToken", "") });
+  const sameOrigin = () => { try { return new URL(taskCfg().api, location.href).origin === location.origin; } catch { return false; } };
+  const canCall = () => { const { api, pass } = taskCfg(); return !!api && (!!pass || sameOrigin()); };
   const ghHeaders = () => { const h = { Accept: "application/vnd.github+json" }; const t = taskCfg().gh; if (t) h.Authorization = `Bearer ${t}`; return h; };
   const POLL_MS = () => (taskCfg().gh ? 30000 : 120000);
   let routineProjects = new Set();
@@ -541,8 +546,9 @@
   const runs = store.get("hq.runs", []);
   async function callApi(method, body) {
     const { api, pass } = taskCfg();
-    if (!api || !pass) throw new Error("Nog niet ingesteld");
-    const r = await fetch(api, { method, headers: { "Content-Type": "application/json", "X-HQ-Password": pass }, body: body ? JSON.stringify(body) : undefined });
+    if (!canCall()) throw new Error("Nog niet ingesteld");
+    const headers = { "Content-Type": "application/json" }; if (pass) headers["X-HQ-Password"] = pass;
+    const r = await fetch(api, { method, headers, credentials: "same-origin", body: body ? JSON.stringify(body) : undefined });
     const data = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(data.error || `Fout ${r.status}`);
     return data;
@@ -550,7 +556,7 @@
   async function loadRoutines() {
     const { api, pass } = taskCfg();
     routineProjects = new Set();
-    if (api && pass) { try { routineProjects = new Set(((await callApi("GET")).projects || []).map(normName)); } catch {} }
+    if (canCall()) { try { routineProjects = new Set(((await callApi("GET")).projects || []).map(normName)); } catch {} }
     projects.forEach((p) => { if (p.li) p.li.querySelector(".run").hidden = !hasRoutine(p); });
     if (selected) renderTask(selected);
   }
@@ -678,7 +684,7 @@
     const { api, pass } = taskCfg();
     const hint = $("#task-hint"), form = $("#task-form"), st = $("#task-status");
     st.textContent = ""; st.className = "task-status";
-    if (!api || !pass) {
+    if (!canCall()) {
       hint.innerHTML = `Nog niet ingesteld. Klik op ⚙ in de zijbalk. Uitleg: <a href="${readme}" target="_blank" rel="noopener">routines/README.md</a>`;
       form.hidden = true;
     } else if (!hasRoutine(p)) {
@@ -713,6 +719,8 @@
   const dlg = $("#settings");
   $("#settings-open").addEventListener("click", () => { const c = taskCfg(); $("#set-api").value = c.api; $("#set-pass").value = c.pass; $("#set-gh").value = c.gh; $("#set-status").textContent = ""; $("#set-status").className = "task-status"; dlg.showModal(); });
   $("#set-close").addEventListener("click", () => dlg.close());
+  $("#set-logout").hidden = !onVercel;
+  $("#set-logout").addEventListener("click", async () => { try { await fetch("/api/login", { method: "DELETE", credentials: "same-origin" }); } catch {} location.href = "/login.html"; });
   $("#set-test").addEventListener("click", async () => {
     const st = $("#set-status"); st.className = "task-status"; st.textContent = "Testen…";
     try {

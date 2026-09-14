@@ -1,7 +1,7 @@
 {
   "$schema": "./docs/registry.schema.json",
   "owner": "bold700",
-  "world_url": "https://bold700.github.io/hq/",
+  "world_url": "https://hq-zeta-lilac.vercel.app/",
   "task_api": "",
   "clusters": {
     "fitness":  { "label": "Fitness",        "color": "#ff6b4a", "agents": ["fitness-domain", "code-reviewer"] },

@@ -8,8 +8,8 @@
 //                (in plaats van "url" mag ook "id": "trig_..."). De naam na HQ_ROUTINE_ is de projectnaam
 //                in hoofdletters, met alles wat geen letter of cijfer is vervangen door _.
 //   HQ_ROUTINES  (oud, blijft werken) JSON met alle projecten in één: {"LiftLog": {"id": "...", "token": "..."}}
-//   HQ_ORIGINS   (optioneel) komma-gescheiden lijst van toegestane origins; standaard https://bold700.github.io
-const crypto = require("crypto");
+//   HQ_ORIGINS   (optioneel) komma-gescheiden lijst van extra toegestane origins voor aanroepen van buiten de wereld
+const { sameSecret, hasSession } = require("../lib/session");
 
 const FIRE = (id) => `https://api.anthropic.com/v1/claude_code/routines/${id}/fire`;
 
@@ -29,13 +29,8 @@ function loadRoutines() {
   return out;
 }
 
-function sameSecret(a, b) {
-  if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
-  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
-}
-
 module.exports = async (req, res) => {
-  const allowed = (process.env.HQ_ORIGINS || "https://bold700.github.io").split(",").map((s) => s.trim());
+  const allowed = (process.env.HQ_ORIGINS || "").split(",").map((s) => s.trim()).filter(Boolean);
   const origin = req.headers.origin || "";
   if (allowed.includes("*") || allowed.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin || "*");
@@ -53,7 +48,8 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: `Een HQ_ROUTINE-variabele is geen geldige JSON: ${e.message}` });
   }
   if (!process.env.HQ_PASSWORD) return res.status(500).json({ error: "HQ_PASSWORD ontbreekt in Vercel" });
-  if (!sameSecret(req.headers["x-hq-password"], process.env.HQ_PASSWORD)) {
+  // Toegang: ingelogd in de wereld (sessiecookie) of het wachtwoord in de header (voor externe aanroepen).
+  if (!hasSession(req) && !sameSecret(req.headers["x-hq-password"], process.env.HQ_PASSWORD)) {
     return res.status(401).json({ error: "Wachtwoord klopt niet" });
   }
 

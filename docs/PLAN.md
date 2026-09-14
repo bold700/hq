@@ -49,7 +49,7 @@ De workflow `pages.yml` bouwt bij elke push naar `main` en elke nacht een verse 
 1. Maak op GitHub een **lege** repo `bold700/hq` aan (publiek, zonder README).
 2. Draai `bash hq/bootstrap.sh` vanuit je LiftLog-checkout (of laat Claude het pushen).
 3. Kijk of Actions → "Publiceer 3D-wereld" groen wordt; zo niet, zet bij Settings → Pages de bron op "GitHub Actions" en start de workflow opnieuw.
-4. Open https://bold700.github.io/hq/.
+4. Open https://hq-zeta-lilac.vercel.app/.
 5. Open LiftLog in Claude Code, typ `/hq` en `/agents`; je ziet de vijf agents uit de hub.
 
 ## Daarna, in deze volgorde

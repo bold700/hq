@@ -12,7 +12,7 @@ Stappen:
    - **Dit project**: naam, cluster, status, en de agents die hier horen (cluster-agents plus project-agents). Als het project niet in de registry staat: zeg dat, en verwijs naar de skill `hq-registry` om het toe te voegen.
    - **Clusters**: per cluster het aantal projecten en de agents.
    - **Beschikbare agents**: naam plus één regel description.
-   - Link naar de 3D-wereld: https://bold700.github.io/hq/
+   - Link naar de 3D-wereld: https://hq-zeta-lilac.vercel.app/
 4. Als de gebruiker een argument meegeeft (`/hq <naam>`), toon alleen dat project of die agent in detail.
 
 Houd het kort: dit is een spiekbriefje, geen rapport.

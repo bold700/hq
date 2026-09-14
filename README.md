@@ -2,7 +2,7 @@
 
 Eén plek voor alles wat over projecten heen gaat: de gedeelde Claude Code agents en skills, de huisregels, het register van projecten, en de 3D-wereld waarin je alles ziet.
 
-**Wereld:** https://bold700.github.io/hq/ · **Plan:** [docs/PLAN.md](docs/PLAN.md)
+**Wereld:** https://hq-zeta-lilac.vercel.app/ · **Plan:** [docs/PLAN.md](docs/PLAN.md)
 
 ## Wat zit erin
 
