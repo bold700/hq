@@ -752,8 +752,22 @@
 
   const q = $("#q");
   q.addEventListener("input", applyFilter);
+  // menu inklappen op een smal scherm; alles deselecteren met een tik op lege ruimte of Escape
+  const rail = $("#rail"), railToggle = $("#rail-toggle");
+  const isNarrow = () => innerWidth <= 760;
+  function setRail(open) { rail.classList.toggle("open", open); railToggle.setAttribute("aria-expanded", String(open)); }
+  railToggle.addEventListener("click", () => setRail(!rail.classList.contains("open")));
+  q.addEventListener("focus", () => { if (isNarrow()) setRail(true); });
+  function deselectAll() {
+    activeCluster = null; q.value = ""; applyFilter();
+    panel.hidden = true; selected = null; projects.forEach((x) => x.li.classList.remove("on"));
+    if (isNarrow()) setRail(false);
+  }
+  addEventListener("keydown", (e) => { if (e.key === "Escape") deselectAll(); });
+  $("#filter-reset").addEventListener("click", () => { activeCluster = null; q.value = ""; applyFilter(); });
   function applyFilter() {
     const term = q.value.trim().toLowerCase();
+    $("#filter-reset").hidden = !(term || activeCluster);
     clustersNav.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.k === activeCluster));
     for (const k of clusterKeys) clusterHubs[k].ring.material.opacity = k === activeCluster ? 0.7 : 0;
     projects.forEach((p) => {
@@ -824,7 +838,8 @@
   canvas.addEventListener("pointerdown", (e) => (downAt = [e.clientX, e.clientY]));
   canvas.addEventListener("pointerup", (e) => {
     if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) return;
-    const o = pick(e); if (!o) return;
+    const o = pick(e); if (!o) { deselectAll(); return; }
+    if (isNarrow()) setRail(false);
     if (o.userData.kind === "project") select(o.userData.p);
     else { q.value = o.userData.name; activeCluster = null; applyFilter(); flyTo(clusterHubs[o.userData.cluster].center, 20); }
   });
