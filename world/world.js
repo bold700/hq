@@ -68,10 +68,12 @@
   const scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(0x0a0d18, 0.012);
   const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 400);
-  camera.position.set(0, 34, 62);
+  // op een smal (telefoon)scherm start de camera verder weg zodat de galaxy in beeld past
+  const portrait = innerWidth < innerHeight;
+  camera.position.set(0, portrait ? 48 : 34, portrait ? 86 : 62);
   const controls = new THREE.OrbitControls(camera, canvas);
   controls.enableDamping = true; controls.dampingFactor = 0.06;
-  controls.minDistance = 8; controls.maxDistance = 140; controls.maxPolarAngle = Math.PI * 0.55;
+  controls.minDistance = 8; controls.maxDistance = 100; controls.maxPolarAngle = Math.PI * 0.55;
   controls.autoRotate = !reduceMotion; controls.autoRotateSpeed = 0.25;
   canvas.addEventListener("pointerdown", () => (controls.autoRotate = false), { once: true });
 
@@ -164,10 +166,11 @@
     const n = 700, geo = new THREE.DodecahedronGeometry(0.22, 0), mat = new THREE.MeshStandardMaterial({ color: 0x8a8f9c, roughness: 1, metalness: 0.1 });
     const inst = new THREE.InstancedMesh(geo, mat, n); const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), v3 = new THREE.Vector3(), sc = new THREE.Vector3();
     for (let i = 0; i < n; i++) {
-      const a = Math.random() * Math.PI * 2, r = 44 + (Math.random() - 0.5) * 6 * Math.random();
-      v3.set(Math.cos(a) * r, (Math.random() - 0.5) * 3.2, Math.sin(a) * r);
+      // de gordel ligt buiten de verste camerastand, zodat er nooit een asteroïde vlak voor de lens hangt
+      const a = Math.random() * Math.PI * 2, r = 118 + (Math.random() - 0.5) * 14 * Math.random();
+      v3.set(Math.cos(a) * r, (Math.random() - 0.5) * 7, Math.sin(a) * r);
       e.set(Math.random() * 6, Math.random() * 6, Math.random() * 6); q.setFromEuler(e);
-      const s = 0.4 + Math.random() * 1.4; sc.set(s, s * (0.7 + Math.random() * 0.6), s);
+      const s = 1.2 + Math.random() * 3.2; sc.set(s, s * (0.7 + Math.random() * 0.6), s);
       m4.compose(v3, q, sc); inst.setMatrixAt(i, m4);
     }
     belt.add(inst);
