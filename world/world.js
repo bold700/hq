@@ -561,6 +561,7 @@
     if (canCall()) { try { routineProjects = new Set(((await callApi("GET")).projects || []).map(normName)); } catch {} }
     projects.forEach((p) => { if (p.li) p.li.querySelector(".run").hidden = !hasRoutine(p); });
     if (selected) renderTask(selected);
+    if (typeof renderMissions === "function") renderMissions();
   }
   const relTime = (iso) => { const d = (Date.now() - Date.parse(iso)) / DAY; return d < 1 ? "vandaag" : `${Math.round(d)} d geleden`; };
   const elapsed = (iso) => { const m = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60000)); return m < 1 ? "net gestart" : m < 60 ? `${m} min` : `${Math.round(m / 60)} u`; };
@@ -622,7 +623,7 @@
     store.set("hq.runs", runs);
     syncBusy();
     if (selected) renderTask(selected);
-    if (changed) refreshRegistry();
+    if (changed) { renderMissions(); refreshRegistry(); }
   }
 
   // Leest registry.json rechtstreeks van main en laat verschillen zien: sterren die verhuizen of erbij komen.
@@ -718,6 +719,59 @@
       st.className = "task-status err"; st.textContent = err.message;
     } finally { btn.disabled = false; }
   });
+  // ---------- missies (voorstellen van de patrouille, missions.json) ----------
+  let missions = [];
+  const missionState = store.get("hq.missions", {});
+  const goalNL = { veilig: "veilig", leven: "in leven", geld: "geld" };
+  const goalOrder = { veilig: 0, leven: 1, geld: 2 };
+  const byName = (n) => projects.find((p) => p.name === n);
+  const missionRun = (m) => runs.find((r) => r.mission === m.id);
+  const missionStatus = (m) => { const r = missionRun(m); if (r) return r.status === "done" ? "done" : isRunning(r) ? "started" : "open"; return (missionState[m.id] || {}).status || m.status; };
+  async function loadMissions() {
+    try {
+      const url = onVercel ? `/api/missions?v=${Date.now()}` : `https://raw.githubusercontent.com/${owner}/hq/main/missions.json?v=${Date.now()}`;
+      const r = await fetch(url, { cache: "no-store", credentials: "same-origin" });
+      if (r.ok) missions = ((await r.json()).missions || []).filter((m) => m.status === "open" || m.status === "started");
+    } catch {}
+    renderMissions();
+  }
+  function missionItem(m, withProject) {
+    const p = byName(m.project), st = missionStatus(m), run = missionRun(m);
+    const color = p ? clusters[p.cluster].color : "#9aa3b2";
+    let btn;
+    if (st === "done") btn = `<a class="mbtn ok" href="${esc((run && run.commit && run.commit.url) || (run && run.pr && run.pr.url) || (run && run.session_url) || "#")}" target="_blank" rel="noopener">klaar ✓</a>`;
+    else if (st === "started") btn = `<a class="mbtn busy" href="${esc((run && run.session_url) || (missionState[m.id] || {}).session_url || "#")}" target="_blank" rel="noopener">bezig…</a>`;
+    else if (p && hasRoutine(p) && canCall()) btn = `<button class="mbtn" type="button" data-start="${esc(m.id)}">Start</button>`;
+    else btn = `<span class="mbtn off" title="Geen Routine voor dit project; zie routines/README.md">geen routine</span>`;
+    return `<li style="--c:${color}"><i></i><div><b class="mt" data-project="${esc(m.project)}" title="Ga naar ${esc(m.project)}">${withProject ? esc(m.project) + " · " : ""}${esc(m.title)}</b><small>${esc(m.why || "")}</small><em>${esc(goalNL[m.goal] || m.goal || "")} · ${esc(m.agent || "")} · ${esc(m.effort || "")} · waarde ${esc(m.value || "")}</em></div>${btn}</li>`;
+  }
+  function renderMissions() {
+    const open = missions.filter((m) => missionStatus(m) !== "dismissed")
+      .sort((a, b) => (goalOrder[a.goal] ?? 9) - (goalOrder[b.goal] ?? 9) || (b.value || 0) - (a.value || 0));
+    const sec = $("#missions"); if (sec) { sec.hidden = !open.length; $("#missions-count").textContent = open.length; $("#mission-list").innerHTML = open.slice(0, 8).map((m) => missionItem(m, true)).join(""); }
+    const ps = $("#p-missions"); if (ps && selected) { const mine = open.filter((m) => m.project === selected.name); ps.hidden = !mine.length; $("#p-mission-list").innerHTML = mine.map((m) => missionItem(m, false)).join(""); }
+  }
+  async function startMission(id, btn) {
+    const m = missions.find((x) => x.id === id), p = m && byName(m.project); if (!m || !p) return;
+    btn.disabled = true; btn.textContent = "Starten…";
+    try {
+      const r = await callApi("POST", { project: p.name, text: `[Missie ${m.id}] ${m.task}` });
+      const started_at = r.started_at || new Date().toISOString();
+      runs.unshift({ project: p.name, text: `Missie: ${m.title}`, session_url: r.session_url, started_at, status: "running", mission: m.id });
+      runs.splice(30); store.set("hq.runs", runs);
+      missionState[m.id] = { status: "started", session_url: r.session_url, started_at }; store.set("hq.missions", missionState);
+      toast(`Missie gestart in ${p.name}: ${m.title}`);
+      if (selected !== p) select(p); else renderTask(p);
+      syncBusy(); renderMissions();
+    } catch (err) { toast(`Missie niet gestart: ${err.message}`); btn.disabled = false; btn.textContent = "Start"; }
+  }
+  for (const id of ["#mission-list", "#p-mission-list"]) {
+    const el = $(id); if (!el) continue;
+    el.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-start]"); if (b) return startMission(b.dataset.start, b);
+      const t = e.target.closest(".mt"); if (t) { const p = byName(t.dataset.project); if (p) select(p); }
+    });
+  }
   const dlg = $("#settings");
   $("#settings-open").addEventListener("click", () => { const c = taskCfg(); $("#set-api").value = c.api; $("#set-pass").value = c.pass; $("#set-gh").value = c.gh; $("#set-status").textContent = ""; $("#set-status").className = "task-status"; dlg.showModal(); });
   $("#set-close").addEventListener("click", () => dlg.close());
@@ -809,6 +863,7 @@
     links.push(`<a class="ghost" href="https://claude.ai/code" target="_blank" rel="noopener">Open in Claude Code</a>`);
     $("#p-links").innerHTML = links.join("");
     renderTask(p);
+    renderMissions();
     panel.hidden = false;
     if (quiet) return;
     if (p.mesh) flyTo(p.mesh.position, 9);
@@ -927,6 +982,7 @@
   }
   requestAnimationFrame(tick);
   loadRoutines();
+  loadMissions();
   syncBusy();
   if (runs.some(needsCheck)) pollRuns();
 })().catch((err) => {

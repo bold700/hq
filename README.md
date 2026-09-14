@@ -2,15 +2,19 @@
 
 Eén plek voor alles wat over projecten heen gaat: de gedeelde Claude Code agents en skills, de huisregels, het register van projecten, en de 3D-wereld waarin je alles ziet.
 
-**Wereld:** https://hq-zeta-lilac.vercel.app/ · **Plan:** [docs/PLAN.md](docs/PLAN.md)
+**Wereld:** https://hq-zeta-lilac.vercel.app/ · **Plan:** [docs/PLAN.md](docs/PLAN.md) · **Operatie (agents, missies, patrouille):** [docs/OPERATIE.md](docs/OPERATIE.md)
 
 ## Wat zit erin
 
 | Map | Wat |
 |---|---|
 | `.claude-plugin/marketplace.json` | De marketplace `bold700`. Projecten wijzen hiernaar. |
-| `plugins/bold700-core/` | De plugin: 5 agents, 2 skills, het `/hq` commando. |
-| `registry.json` | Welke projecten er zijn, in welk cluster, met welke agents. |
+| `plugins/bold700-core/` | De plugin: 9 agents, 2 skills, het `/hq` commando. |
+| `registry.json` | Welke projecten er zijn, in welk cluster, met welke agents, en of ze geld kunnen opleveren (`business`). |
+| `missions.json` | Voorstellen van de patrouille; in de wereld start je ze met één klik. |
+| `projects/<naam>/` | Dossier en log per project: het geheugen van de agents. |
+| `reports/` | Rapporten van de nachtelijke patrouille. |
+| `routines/` | Prompts voor de Routines, waaronder `patrouille.md`. |
 | `world/` | De 3D-wereld (three.js, statisch, geen build). |
 | `templates/` | `settings.json` en `CLAUDE.md` voor nieuwe projecten. |
 | `scripts/connect-project.sh` | Koppelt een repo aan de hub in één commando. |
@@ -25,6 +29,10 @@ Eén plek voor alles wat over projecten heen gaat: de gedeelde Claude Code agent
 | `design-system-guardian` | Tokens, componenten, Material 3 consistent houden |
 | `code-reviewer` | Elke diff en PR op bugs en regressies |
 | `fitness-domain` | LiftLog, FitnessFlow en de andere fitness-apps |
+| `fleet-commander` | Patrouille over alle projecten, missies prioriteren, weekbericht |
+| `maintainer` | Projecten in leven houden: CI, afhankelijkheden, build, README |
+| `security-officer` | Secrets, rules, open endpoints, kwetsbare packages, privacy |
+| `revenue-strategist` | Kortste weg naar betalende klanten, in meetbare missies |
 
 Agents wijzigen of toevoegen: bewerk `plugins/bold700-core/agents/*.md`, werk `registry.json` bij, push naar `main`. Elk gekoppeld project krijgt de update bij de volgende sessie (of direct via `/plugin` → update).
 
@@ -47,6 +55,10 @@ cd world && python3 -m http.server 8000
 ```
 
 Open http://localhost:8000. Lokaal is er geen login. De pagina haalt de registry rechtstreeks van `main`, de repolijst live uit de GitHub API, en vult aan met `data/repos.json` (privé repos, fallback).
+
+## Missies
+
+De patrouille (Routine `HQ · patrouille`, prompt in `routines/patrouille.md`) kijkt elke nacht langs alle projecten, schrijft `reports/<datum>.md` en zet voorstellen in `missions.json`. In de wereld staan ze onder **Missies**, gesorteerd op veilig, in leven, geld. Klik **Start** en de Routine van dat project voert de missie uit; niets gebeurt zonder die klik. Hoe het geheel werkt: [docs/OPERATIE.md](docs/OPERATIE.md).
 
 ## Taken starten vanuit de wereld
 

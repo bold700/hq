@@ -24,6 +24,9 @@ Een Routine is een opgeslagen Claude Code configuratie (prompt + repo + omgeving
 ### 3. In de wereld
 Klik rechtsboven in het zijpaneel op **Taken instellen**, vul het API-adres (`https://…vercel.app/api/fire`) en je wachtwoord in. Beide blijven alleen in jouw browser staan. Projecten met een Routine krijgen een ▶ in de lijst; in het detailpaneel verschijnt "Taak starten".
 
+### 4. De patrouille
+Maak nog één Routine, `HQ · patrouille`, met de prompt uit [`patrouille.md`](patrouille.md), repo `bold700/hq`, geen connectors, trigger **Schedule** dagelijks om 05:00. Die vult `missions.json` en `reports/`. Wil je hem ook vanuit de wereld kunnen starten, geef hem daarnaast een API-trigger en zet die in Vercel als `HQ_ROUTINE_PATROUILLE`.
+
 ## Goed om te weten
 - Elke start is een nieuwe cloud-sessie en telt mee in je dagelijkse Routine-limiet en je gebruik.
 - De sessie draait zonder toestemmingsvragen. De prompt in `prompt.md` beperkt Claude tot een `claude/`-branch en een draft PR; pas dat niet aan zonder reden.

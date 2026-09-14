@@ -1,0 +1,84 @@
+{
+  "$comment": "Voorraad van voorstellen. De patrouille (routines/patrouille.md) vult en sluit; Kenny keurt goed in de wereld (paneel Missies). Velden: zie docs/OPERATIE.md.",
+  "updated": "2026-09-14",
+  "missions": [
+    {
+      "id": "m-001",
+      "project": "hq",
+      "title": "Eerste patrouille draaien",
+      "why": "Zonder rapport weten we niet wat leeft, kraakt of kan verdienen; dit vult reports/ en de missies voor de rest.",
+      "agent": "fleet-commander",
+      "goal": "leven",
+      "effort": "L",
+      "value": 5,
+      "task": "Voer de patrouille uit zoals beschreven in routines/patrouille.md in deze repo: verzamel per project in registry.json de feiten (laatste push, open PR's, README, workflows, rules, kwetsbare afhankelijkheden voor zover zichtbaar via de GitHub API), schrijf reports/<vandaag>.md met per cluster drie regels (leeft, kraakt, kans) en een top vijf, en werk missions.json bij met nieuwe, concrete missies. Vermeld m-001 in de commit-boodschap.",
+      "status": "open",
+      "created": "2026-09-14"
+    },
+    {
+      "id": "m-002",
+      "project": "hq",
+      "title": "Hub doorzoeken op secrets en open endpoints",
+      "why": "De hub stuurt Routines aan; een lek hier raakt alle projecten.",
+      "agent": "security-officer",
+      "goal": "veilig",
+      "effort": "S",
+      "value": 5,
+      "task": "Controleer bold700/hq als security-officer: doorzoek de code en de git-geschiedenis op tokens, wachtwoorden en API-sleutels; controleer dat elke functie in api/ alleen werkt met de sessiecookie of X-HQ-Password en dat middleware.js alles behalve /api, /login en favicon achter de login houdt; controleer .github/workflows op secrets die in logs kunnen lekken. Schrijf de bevindingen (ernst, scenario, bewijs, fix) in reports/security-hq.md. Repareer alleen wat klein en zeker is; grotere punten worden nieuwe missies in missions.json. Vermeld m-002 in de commit-boodschap.",
+      "status": "open",
+      "created": "2026-09-14"
+    },
+    {
+      "id": "m-003",
+      "project": "LiftLog",
+      "title": "Firestore- en storage-rules nakijken op eigenaarschap",
+      "why": "LiftLog bevat gezondheidsdata van sporters; trainer mag alleen eigen sporters zien, sporter alleen zichzelf.",
+      "agent": "security-officer",
+      "goal": "veilig",
+      "effort": "M",
+      "value": 5,
+      "task": "Beoordeel als security-officer de Firestore- en storage-rules van LiftLog: elke lees- en schrijfregel moet request.auth eisen en eigenaarschap controleren (trainer alleen eigen sporters, sporter alleen eigen data). Schrijf rules-tests met de Firebase emulator voor de belangrijkste collecties (positief en negatief), repareer te ruime regels, en zet een korte samenvatting in docs/security.md. Push niets dat de tests rood maakt. Vermeld m-003 in de commit-boodschap.",
+      "status": "open",
+      "created": "2026-09-14"
+    },
+    {
+      "id": "m-004",
+      "project": "LiftLog",
+      "title": "Aanbod op papier: wie betaalt, waarvoor, hoe",
+      "why": "LiftLog is het kanaal naar betalende PT-klanten; zonder helder aanbod blijft het een app zonder omzet.",
+      "agent": "revenue-strategist",
+      "goal": "geld",
+      "effort": "S",
+      "value": 4,
+      "task": "Schrijf als revenue-strategist docs/aanbod.md voor LiftLog: wie betaalt (de PT-klant of de trainer), waarvoor (welk probleem lost het nu al op), hoe het geld binnenkomt (abonnement per maand via de trainer, of per begeleidingstraject), en wat concreet ontbreekt om een nieuwe sporter zonder tussenkomst van Kenny te laten starten (uitnodiging, eerste schema, betaling). Eindig met drie kleine vervolgtaken van hoogstens een paar uur elk, elk met een meetbaar resultaat. Vermeld m-004 in de commit-boodschap.",
+      "status": "open",
+      "created": "2026-09-14"
+    },
+    {
+      "id": "m-005",
+      "project": "hq",
+      "title": "Dossiers voor alle actieve projecten",
+      "why": "Agents worden beter door geheugen; zonder dossier begint elke run bij nul.",
+      "agent": "maintainer",
+      "goal": "leven",
+      "effort": "M",
+      "value": 4,
+      "task": "Maak voor elk project met status active in registry.json een projects/<naam>/dossier.md op basis van templates/dossier.md. Gebruik de README en package.json van de repo (via de GitHub API of raw.githubusercontent.com) voor wat het is, hoe het draait en hoe het deployt. Wat je niet kunt vaststellen laat je op 'onbekend' staan; verzin niets. Sla projecten over die al een dossier hebben. Vermeld m-005 in de commit-boodschap.",
+      "status": "open",
+      "created": "2026-09-14"
+    },
+    {
+      "id": "m-006",
+      "project": "bold700-site",
+      "title": "Diensten en prijs zichtbaar op de site",
+      "why": "De site is de plek waar leads binnenkomen; zonder aanbod en prijs is er niets om op te reageren.",
+      "agent": "revenue-strategist",
+      "goal": "geld",
+      "effort": "M",
+      "value": 4,
+      "task": "Voeg aan de bold700-site een sectie of pagina toe die de diensten van bold700 noemt (UX-review, design system, Penpot-automatisering, personal training) met per dienst één zin, een vanaf-prijs of 'op aanvraag', en één duidelijke knop naar het contactformulier. Houd de bestaande stijl aan; geen nieuwe afhankelijkheden. Vermeld m-006 in de commit-boodschap.",
+      "status": "open",
+      "created": "2026-09-14"
+    }
+  ]
+}
