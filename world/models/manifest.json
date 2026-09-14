@@ -55,5 +55,16 @@
     "role": "core",
     "size": 7.5,
     "tilt": -0.35
+  },
+  "hq-core": {
+    "file": "hq-core.glb",
+    "thumb": "hq-core.png",
+    "mode": "preview",
+    "prompt": "colossal spherical space battle station, Death Star inspired: a moon-sized sphere with a huge concave superlaser dish set into the upper hemisphere, a deep equatorial trench with layered walls, the entire surface densely covered with industrial panels, towers, hangar bays, antenna arrays and greebles, highly detailed hard-surface sci-fi, realistic, no background",
+    "preview_task_id": "01a09e10-bfd0-754c-a033-dda3f1f3465f",
+    "task_id": "01a09e10-bfd0-754c-a033-dda3f1f3465f",
+    "bytes": 1416784,
+    "generated_at": "2026-09-14T03:59:17.725Z",
+    "role": "core-new"
   }
 }
