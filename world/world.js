@@ -9,7 +9,9 @@
     const json = (u) => fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`${u}: ${r.status}`))));
     // Registry: de kopie in data/ (wordt bij elke deploy ververst), anders uit de repo-root.
     // Registry: altijd vers van main (raw GitHub), anders de kopie in data/.
-    const registry = await json(`https://raw.githubusercontent.com/bold700/hq/main/registry.json?v=${Date.now()}`).catch(() => json("data/registry.json"));
+    // Op Vercel via de eigen API (werkt ook als de repo privé is), anders vers van main, anders de kopie in data/.
+    const registry = await json(/\.vercel\.app$/.test(location.hostname) ? `/api/registry?v=${Date.now()}` : `https://raw.githubusercontent.com/bold700/hq/main/registry.json?v=${Date.now()}`)
+      .catch(() => json(`https://raw.githubusercontent.com/bold700/hq/main/registry.json?v=${Date.now()}`)).catch(() => json("data/registry.json"));
     // Repos: live uit de GitHub API (publiek), aangevuld met de snapshot (privé en beschrijvingen).
     const snapshot = await json("data/repos.json").catch(() => ({ repos: [] }));
     let live = null;
@@ -627,7 +629,7 @@
   let registryEtag = "";
   async function refreshRegistry() {
     try {
-      const res = await fetch(`https://raw.githubusercontent.com/${owner}/hq/main/registry.json?v=${Date.now()}`, { cache: "no-store" });
+      const res = await fetch(onVercel ? `/api/registry?v=${Date.now()}` : `https://raw.githubusercontent.com/${owner}/hq/main/registry.json?v=${Date.now()}`, { cache: "no-store", credentials: "same-origin" });
       if (!res.ok) return;
       const text = await res.text();
       if (text === registryEtag) return;
