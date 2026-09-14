@@ -14,7 +14,7 @@
       "task": "Voer de patrouille uit zoals beschreven in routines/patrouille.md in deze repo: verzamel per project in registry.json de feiten (laatste push, open PR's, README, workflows, rules, kwetsbare afhankelijkheden voor zover zichtbaar via de GitHub API), schrijf reports/<vandaag>.md met per cluster drie regels (leeft, kraakt, kans) en een top vijf, en werk missions.json bij met nieuwe, concrete missies. Vermeld m-001 in de commit-boodschap.",
       "status": "done",
       "created": "2026-09-14",
-      "done_commit": "pending"
+      "done_commit": "a4e05bc5d5879a2549858eabc86cdf0ab973394e"
     },
     {
       "id": "m-002",
