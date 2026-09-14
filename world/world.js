@@ -720,7 +720,7 @@
   $("#settings-open").addEventListener("click", () => { const c = taskCfg(); $("#set-api").value = c.api; $("#set-pass").value = c.pass; $("#set-gh").value = c.gh; $("#set-status").textContent = ""; $("#set-status").className = "task-status"; dlg.showModal(); });
   $("#set-close").addEventListener("click", () => dlg.close());
   $("#set-logout").hidden = !onVercel;
-  $("#set-logout").addEventListener("click", async () => { try { await fetch("/api/login", { method: "DELETE", credentials: "same-origin" }); } catch {} location.href = "/login.html"; });
+  $("#set-logout").addEventListener("click", async () => { try { await fetch("/api/login", { method: "DELETE", credentials: "same-origin" }); } catch {} location.href = "/login"; });
   $("#set-test").addEventListener("click", async () => {
     const st = $("#set-status"); st.className = "task-status"; st.textContent = "Testen…";
     try {

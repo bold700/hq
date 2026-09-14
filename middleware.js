@@ -1,5 +1,5 @@
 // Vercel Edge Middleware: de hele wereld zit achter de login. Zonder geldige sessiecookie ga je naar /login.html.
-export const config = { matcher: ["/((?!api/|login\\.html|favicon\\.ico).*)"] };
+export const config = { matcher: ["/((?!api/|login|favicon\\.ico).*)"] };
 
 async function sessionToken(secret) {
   const enc = new TextEncoder();
@@ -14,5 +14,5 @@ export default async function middleware(req) {
   const m = (req.headers.get("cookie") || "").match(/(?:^|;\s*)hq_session=([a-f0-9]+)/);
   if (m && m[1] === (await sessionToken(secret))) return; // ingelogd: doorgaan
   const url = new URL(req.url);
-  return Response.redirect(new URL(`/login.html?next=${encodeURIComponent(url.pathname + url.search)}`, req.url), 302);
+  return Response.redirect(new URL(`/login?next=${encodeURIComponent(url.pathname + url.search)}`, req.url), 302);
 }
