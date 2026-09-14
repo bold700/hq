@@ -21,6 +21,8 @@ De hub van bold700: de Claude Code plugin `bold700-core` (agents, skills, `/hq`)
 - `world/world.js` is één groot bestand (~900 regels); kleine wijzigingen zijn prima, grote verbouwingen niet zonder plan.
 - De GitHub API zonder token is beperkt tot 60 verzoeken per uur; de wereld valt dan terug op `data/repos.json`.
 - Routines moeten door Kenny handmatig aangemaakt worden; de hub kan dat niet zelf.
+- Een Claude Code-sessie (Routine) ziet via de GitHub API alleen de repo's waarvoor de sessie expliciet toegang heeft. De patrouille-sessie van 2026-09-14 had alleen toegang tot `bold700/hq` zelf; alle andere bold700-repos gaven "GitHub access to this repository is not enabled for this session". Zonder bredere toegang (of een eigen token) kan de patrouille de rest van de vloot niet verifiëren en valt terug op wat in `registry.json` staat.
+- `docs/PLAN.md` en de README-tabel noemen nog een `pages.yml`-workflow die niet meer bestaat (verwijderd bij de overstap naar Vercel/login, commit 5cb3282); `world/data/registry.json` (offline-fallback) is sindsdien niet meer ververst en loopt achter op main (zie missie m-008).
 
 ## Afspraken
 - `api/fire.js` en `.github/workflows/` alleen aanpassen als de taak daar expliciet om vraagt.
@@ -28,4 +30,4 @@ De hub van bold700: de Claude Code plugin `bold700-core` (agents, skills, `/hq`)
 - Missies komen alleen in `missions.json`; uitvoeren gebeurt pas na een klik van Kenny in de wereld.
 
 ## Laatst bijgewerkt
-2026-09-14 door claude
+2026-09-14 door claude (patrouille)

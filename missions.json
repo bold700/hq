@@ -12,8 +12,9 @@
       "effort": "L",
       "value": 5,
       "task": "Voer de patrouille uit zoals beschreven in routines/patrouille.md in deze repo: verzamel per project in registry.json de feiten (laatste push, open PR's, README, workflows, rules, kwetsbare afhankelijkheden voor zover zichtbaar via de GitHub API), schrijf reports/<vandaag>.md met per cluster drie regels (leeft, kraakt, kans) en een top vijf, en werk missions.json bij met nieuwe, concrete missies. Vermeld m-001 in de commit-boodschap.",
-      "status": "open",
-      "created": "2026-09-14"
+      "status": "done",
+      "created": "2026-09-14",
+      "done_commit": "pending"
     },
     {
       "id": "m-002",
@@ -77,6 +78,32 @@
       "effort": "M",
       "value": 4,
       "task": "Voeg aan de bold700-site een sectie of pagina toe die de diensten van bold700 noemt (UX-review, design system, Penpot-automatisering, personal training) met per dienst één zin, een vanaf-prijs of 'op aanvraag', en één duidelijke knop naar het contactformulier. Houd de bestaande stijl aan; geen nieuwe afhankelijkheden. Vermeld m-006 in de commit-boodschap.",
+      "status": "open",
+      "created": "2026-09-14"
+    },
+    {
+      "id": "m-007",
+      "project": "hq",
+      "title": "Dubbele draft-PR's opruimen (Fonticon naar penpot-cluster)",
+      "why": "PR #1 en #2 doen allebei dezelfde wijziging (Fonticon van cluster bold700 naar penpot verplaatsen); dat is rommel voor iedereen die de repo opent en kost een klik om te herstellen.",
+      "agent": "maintainer",
+      "goal": "leven",
+      "effort": "S",
+      "value": 2,
+      "task": "Vergelijk PR #1 en #2 in bold700/hq (allebei 'Verplaats Fonticon naar penpot-cluster'). Neem de beste versie over als wijziging in registry.json op main (Fonticon naar cluster penpot, beschrijving mag gelijk blijven of de nettere variant uit een van de PR's krijgen), sluit dan beide PR's met een korte reden dat de wijziging al op main staat. Vermeld m-007 in de commit-boodschap.",
+      "status": "open",
+      "created": "2026-09-14"
+    },
+    {
+      "id": "m-008",
+      "project": "hq",
+      "title": "Snapshot-documentatie klopt niet meer",
+      "why": "docs/PLAN.md en de README-tabel beschrijven een pages.yml-workflow die nachtelijk een snapshot bouwt en publiceert; die workflow bestaat niet meer sinds de wereld achter Vercel/login draait. world/data/registry.json (de offline-fallback) is daardoor ook stil blijven staan en mist de agents en business-velden die main al wel heeft.",
+      "agent": "maintainer",
+      "goal": "leven",
+      "effort": "S",
+      "value": 2,
+      "task": "Corrigeer in bold700/hq de verwijzingen naar de verdwenen pages.yml-workflow: pas docs/PLAN.md (regel over 'De workflow pages.yml...') en de tabelregel voor scripts/build-snapshot.mjs in README.md aan naar de huidige situatie (Vercel + live fetch van main, zie README-sectie Login). Ververs daarna world/data/registry.json met de inhoud van het huidige registry.json zodat de offline-fallback niet meer afwijkt, of verwijder het bestand als het niet meer nodig is (controleer eerst wereld/world.js of het nog als fallback wordt gebruikt). Vermeld m-008 in de commit-boodschap.",
       "status": "open",
       "created": "2026-09-14"
     }
