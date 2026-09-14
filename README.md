@@ -36,13 +36,17 @@ bash scripts/connect-project.sh /pad/naar/repo
 
 Of handmatig: kopieer `templates/settings.json` naar `.claude/settings.json` in de repo. Open daarna een nieuwe Claude Code sessie in dat project en typ `/hq`.
 
+## Login
+
+De wereld draait op Vercel achter een login: `middleware.js` (Edge) stuurt alles zonder sessiecookie naar `login.html`, en `api/login.js` zet de cookie na het wachtwoord uit `HQ_PASSWORD`. Dat is hetzelfde wachtwoord als voor het starten van taken; ingelogd hoef je in de instellingen niets meer in te vullen. Er is geen openbare kopie meer (GitHub Pages staat uit).
+
 ## De wereld lokaal bekijken
 
 ```bash
 cd world && python3 -m http.server 8000
 ```
 
-Open http://localhost:8000. De pagina haalt de repolijst live op uit de GitHub API en vult aan met `data/repos.json` (privé repos, fallback). `data/registry.json` wordt bij elke deploy ververst uit `registry.json`. Pages-bron: GitHub Actions; de map `world/` is de site-root.
+Open http://localhost:8000. Lokaal is er geen login. De pagina haalt de registry rechtstreeks van `main`, de repolijst live uit de GitHub API, en vult aan met `data/repos.json` (privé repos, fallback).
 
 ## Taken starten vanuit de wereld
 
