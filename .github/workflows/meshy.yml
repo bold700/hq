@@ -18,6 +18,15 @@ on:
       polycount:
         description: "Doel-aantal polygonen"
         default: "6000"
+      ai_model:
+        description: "Meshy-model voor preview (bijv. meshy-5), leeg = standaard"
+        default: ""
+      pbr:
+        description: "Bij refine: PBR-materialen (true/false)"
+        default: "false"
+      texture:
+        description: "Bij refine: extra beschrijving van de textuur"
+        default: ""
 
 permissions:
   contents: write
@@ -33,7 +42,7 @@ jobs:
       - name: Model genereren
         env:
           MESHY_API_KEY: ${{ secrets.MESHY_API_KEY }}
-        run: node scripts/meshy.mjs --name "${{ inputs.name }}" --prompt "${{ inputs.prompt }}" --role "${{ inputs.role }}" --mode "${{ inputs.mode }}" --polycount "${{ inputs.polycount }}"
+        run: node scripts/meshy.mjs --name "${{ inputs.name }}" --prompt "${{ inputs.prompt }}" --role "${{ inputs.role }}" --mode "${{ inputs.mode }}" --polycount "${{ inputs.polycount }}" --ai_model "${{ inputs.ai_model }}" --pbr "${{ inputs.pbr }}" --texture "${{ inputs.texture }}"
       - name: Committen
         run: |
           git config user.name "github-actions[bot]"

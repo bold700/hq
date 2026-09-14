@@ -37,11 +37,14 @@ let task;
 if (mode === "refine") {
   const previewId = args.preview || readManifest()[name]?.preview_task_id;
   if (!previewId) throw new Error("Geen preview_task_id bekend voor refine");
-  const { result } = await call("POST", api, { mode: "refine", preview_task_id: previewId, enable_pbr: false });
+  const body = { mode: "refine", preview_task_id: previewId, enable_pbr: args.pbr === "true" };
+  if (args.texture) body.texture_prompt = args.texture;
+  const { result } = await call("POST", api, body);
   task = await waitFor(result);
 } else {
   if (!args.prompt) throw new Error("--prompt ontbreekt");
   const body = { mode: "preview", prompt: args.prompt, art_style: args.style || "realistic", should_remesh: true, topology: "triangle", target_polycount: polycount };
+  if (args.ai_model) body.ai_model = args.ai_model;
   if (args.negative) body.negative_prompt = args.negative;
   const { result } = await call("POST", api, body);
   console.log("taak", result);
