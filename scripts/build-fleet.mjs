@@ -15,6 +15,7 @@ const api = `https://api.github.com/repos/${owner}`;
 async function get(path) {
   const res = await fetch(`${api}/${path}`, { headers });
   if (res.status === 404) return null;
+  if (res.status === 409) return []; // lege repo (nog geen commits)
   if (!res.ok) throw new Error(`GitHub API ${res.status} voor ${path}: ${await res.text()}`);
   return res.json();
 }
@@ -28,7 +29,8 @@ for (const name of names) {
   const f = { checked_at: new Date().toISOString() };
   try {
     const repo = await get(name);
-    if (!repo) { f.exists = false; fleet[name] = f; continue; }
+    // GITHUB_TOKEN ziet alleen publieke repo's en hq zelf; privé repo's geven 404. Met secret FLEET_TOKEN (fine-grained PAT, alleen lezen) worden ze wel zichtbaar.
+    if (!repo || !repo.name) { f.exists = null; f.note = "niet zichtbaar: privé repo (zet FLEET_TOKEN als secret) of bestaat niet"; fleet[name] = f; continue; }
     f.exists = true; f.private = repo.private; f.archived = repo.archived; f.default_branch = repo.default_branch;
     f.pushed_at = repo.pushed_at; f.days_since_push = days(repo.pushed_at); f.open_issues = repo.open_issues_count;
     const prs = (await get(`${name}/pulls?state=open&per_page=50`)) || [];
@@ -46,7 +48,7 @@ for (const name of names) {
     f.has_package_json = await exists(name, "package.json");
   } catch (e) { f.error = e.message; }
   fleet[name] = f;
-  console.log(`${name}: ${f.exists === false ? "geen repo" : f.error ? "fout" : `${f.open_prs.length} PR, CI ${f.ci ? f.ci.conclusion || f.ci.status : "geen"}, push ${f.days_since_push} d`}`);
+  console.log(`${name}: ${f.exists === null ? "niet zichtbaar" : f.error ? "fout" : `${f.open_prs.length} PR, CI ${f.ci ? f.ci.conclusion || f.ci.status : "geen"}, push ${f.days_since_push} d`}`);
 }
 writeFileSync(join(root, "world/data/fleet.json"), JSON.stringify({ generated_at: new Date().toISOString(), source: "scripts/build-fleet.mjs (GitHub Actions)", projects: fleet }, null, 1) + "\n");
 console.log(`fleet: ${names.length} projecten`);
