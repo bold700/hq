@@ -18,7 +18,8 @@ Eén plek voor alles wat over projecten heen gaat: de gedeelde Claude Code agent
 | `world/` | De 3D-wereld (three.js, statisch, geen build). |
 | `templates/` | `settings.json` en `CLAUDE.md` voor nieuwe projecten. |
 | `scripts/connect-project.sh` | Koppelt een repo aan de hub in één commando. |
-| `scripts/build-snapshot.mjs` | Haalt repo-data op uit GitHub voor de wereld (draait in CI). |
+| `scripts/build-snapshot.mjs` | Haalt de repolijst op uit GitHub voor de wereld (dagelijks via `snapshot.yml`). |
+| `scripts/build-fleet.mjs` | Haalt per project PR's, CI, README en rules op naar `world/data/fleet.json` voor de patrouille (dagelijks via `snapshot.yml`). |
 
 ## Agents
 

@@ -1,0 +1,33 @@
+name: Vloot-snapshot (feiten voor de patrouille)
+
+on:
+  schedule:
+    - cron: "15 2 * * *"   # 04:15 Amsterdam (zomertijd); de patrouille draait om 05:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Repo-lijst en vlootfeiten ophalen
+        env:
+          GITHUB_TOKEN: ${{ secrets.FLEET_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          node scripts/build-snapshot.mjs
+          node scripts/build-fleet.mjs
+      - name: Committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add world/data
+          git diff --cached --quiet && echo "geen wijzigingen" && exit 0
+          git commit -m "Vloot-snapshot $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push

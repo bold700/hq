@@ -54,7 +54,7 @@ Elke missie in deze categorie eindigt in iets meetbaars: een pagina live, een pr
 - Vier nieuwe agents in `plugins/bold700-core/agents/`: fleet-commander, maintainer, security-officer, revenue-strategist, geregistreerd in `registry.json` en verdeeld over de clusters.
 - `missions.json` als voorraad van voorstellen (zes om mee te beginnen), `api/missions.js` dat ze achter de login aan de wereld geeft, en het paneel "Missies" in de zijbalk en in het projectpaneel met een Start-knop per missie. Start stuurt de `task` naar de Routine van het project; de status (bezig, klaar) volgt de run zoals bij gewone taken.
 - `templates/dossier.md`, de eerste dossiers en logs voor hq en LiftLog (`projects/`).
-- `routines/patrouille.md`: de prompt voor de nachtelijke patrouille.
+- `routines/patrouille.md`: de prompt voor de nachtelijke patrouille. De feiten die ze nodig heeft (PR's, CI, README, rules) haalt `.github/workflows/snapshot.yml` elke nacht op naar `world/data/fleet.json`, omdat Routine-sessies de GitHub API niet kunnen bereiken.
 - Skill `hq-registry` uitgebreid met de conventies voor dossiers, logs en missies.
 
 ## Wat Kenny nog doet
