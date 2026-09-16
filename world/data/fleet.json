@@ -1,15 +1,15 @@
 {
- "generated_at": "2026-09-15T03:43:07.325Z",
+ "generated_at": "2026-09-16T07:44:25.555Z",
  "source": "scripts/build-fleet.mjs (GitHub Actions)",
  "projects": {
   "hq": {
-   "checked_at": "2026-09-15T03:42:14.834Z",
+   "checked_at": "2026-09-16T07:43:24.370Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
-   "pushed_at": "2026-09-15T03:42:00Z",
-   "days_since_push": 0,
+   "pushed_at": "2026-09-15T03:43:32Z",
+   "days_since_push": 1,
    "open_issues": 2,
    "open_prs": [
     {
@@ -17,7 +17,7 @@
      "title": "Verplaats Fonticon naar penpot-cluster",
      "draft": true,
      "branch": "claude/upbeat-fermi-0nqz20",
-     "age_days": 2,
+     "age_days": 3,
      "url": "https://github.com/bold700/hq/pull/2"
     },
     {
@@ -25,7 +25,7 @@
      "title": "Verplaats Fonticon naar penpot-cluster",
      "draft": true,
      "branch": "claude/upbeat-fermi-2vo3z7",
-     "age_days": 2,
+     "age_days": 3,
      "url": "https://github.com/bold700/hq/pull/1"
     }
    ],
@@ -33,10 +33,20 @@
     "name": "Vloot-snapshot (feiten voor de patrouille)",
     "status": "in_progress",
     "conclusion": null,
-    "at": "2026-09-15T03:42:08Z",
-    "url": "https://github.com/bold700/hq/actions/runs/34925983178"
+    "at": "2026-09-16T07:43:16Z",
+    "url": "https://github.com/bold700/hq/actions/runs/35069970107"
    },
    "recent_commits": [
+    {
+     "sha": "df10773",
+     "date": "2026-09-15T03:43:31Z",
+     "message": "Vloot-snapshot: lege repo's en privé repo's netjes afhandelen"
+    },
+    {
+     "sha": "85c2647",
+     "date": "2026-09-15T03:43:07Z",
+     "message": "Vloot-snapshot 2026-09-15"
+    },
     {
      "sha": "413182b",
      "date": "2026-09-15T03:41:58Z",
@@ -273,21 +283,21 @@
    "has_package_json": false
   },
   "LiftLog": {
-   "checked_at": "2026-09-15T03:42:16.381Z",
+   "checked_at": "2026-09-16T07:43:26.170Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
-   "pushed_at": "2026-09-14T17:11:49Z",
+   "pushed_at": "2026-09-16T04:30:49Z",
    "days_since_push": 0,
-   "open_issues": 4,
+   "open_issues": 3,
    "open_prs": [
     {
      "number": 51,
      "title": "security: audit firestore/storage rules, uitbreiden rules-tests (m-003)",
      "draft": true,
      "branch": "claude/busy-ritchie-px6yxz",
-     "age_days": 0,
+     "age_days": 2,
      "url": "https://github.com/bold700/LiftLog/pull/51"
     },
     {
@@ -295,7 +305,7 @@
      "title": "docs: aanbod-analyse (m-004) — wie betaalt LiftLog, en waarvoor",
      "draft": true,
      "branch": "claude/busy-ritchie-yizh3s",
-     "age_days": 0,
+     "age_days": 2,
      "url": "https://github.com/bold700/LiftLog/pull/50"
     },
     {
@@ -303,26 +313,43 @@
      "title": "README: vermeld bold700 HQ als onderdeel",
      "draft": true,
      "branch": "claude/loving-volta-zewawa",
-     "age_days": 2,
+     "age_days": 3,
      "url": "https://github.com/bold700/LiftLog/pull/47"
-    },
-    {
-     "number": 37,
-     "title": "VORM: multi-tenant fundament, assistent in de app, berichten, push, en lessen met credits",
-     "draft": true,
-     "branch": "claude/dropdown-filter-multi-account-vkm86h",
-     "age_days": 8,
-     "url": "https://github.com/bold700/LiftLog/pull/37"
     }
    ],
    "ci": {
-    "name": "pages build and deployment",
+    "name": "CI",
     "status": "completed",
     "conclusion": "success",
-    "at": "2026-09-14T09:40:12Z",
-    "url": "https://github.com/bold700/LiftLog/actions/runs/34829140611"
+    "at": "2026-09-16T04:31:54Z",
+    "url": "https://github.com/bold700/LiftLog/actions/runs/35055895105"
    },
    "recent_commits": [
+    {
+     "sha": "8df96aa",
+     "date": "2026-09-16T04:30:49Z",
+     "message": "Training afronden blijft bereikbaar, en de knop naar de volgende dag past (#55)"
+    },
+    {
+     "sha": "9ec9305",
+     "date": "2026-09-15T19:56:21Z",
+     "message": "Assistent krijgt een eigen model, los van de workout-generator (#54)"
+    },
+    {
+     "sha": "ce176e0",
+     "date": "2026-09-15T19:34:04Z",
+     "message": "Assistent: een te lang antwoord opnieuw proberen in plaats van opgeven (#53)"
+    },
+    {
+     "sha": "d478080",
+     "date": "2026-09-15T19:16:30Z",
+     "message": "Assistent zegt wát er misging, en het Firebase-project staat vast (#52)"
+    },
+    {
+     "sha": "0f9cd73",
+     "date": "2026-09-15T04:17:05Z",
+     "message": "VORM: multi-tenant fundament, assistent, berichten, lessen met credits, en logs per sporter (#37)"
+    },
     {
      "sha": "f2aa841",
      "date": "2026-09-14T09:39:32Z",
@@ -367,56 +394,6 @@
      "sha": "7007fd0",
      "date": "2026-09-08T10:15:37Z",
      "message": "Keuzeknoppen als één segmentbalk in plaats van losse pillen (#40)"
-    },
-    {
-     "sha": "a1e4922",
-     "date": "2026-09-08T04:48:56Z",
-     "message": "Trainer weet wat er speelt: signaal per oefening, check-in en bijzonderheden (#39)"
-    },
-    {
-     "sha": "2c30032",
-     "date": "2026-09-08T03:16:53Z",
-     "message": "Invoerveld notitie: rand liep op iOS door het label (#38)"
-    },
-    {
-     "sha": "a98e699",
-     "date": "2026-09-07T08:37:52Z",
-     "message": "Grote schermen opgeknipt in losse onderdelen (zonder gedragswijziging) (#36)"
-    },
-    {
-     "sha": "9a9ea07",
-     "date": "2026-09-07T05:08:09Z",
-     "message": "Eén UI-stack: laatste shadcn/Tailwind-schermen naar Material, Tailwind verwijderd (#35)"
-    },
-    {
-     "sha": "1e91a41",
-     "date": "2026-09-07T04:59:59Z",
-     "message": "Foutmeldingen zichtbaar, gedeelde logica en kleinere eerste download (#34)"
-    },
-    {
-     "sha": "8b26f35",
-     "date": "2026-09-07T04:57:58Z",
-     "message": "Opruimen: dode code, ongebruikte pakketten, oud Xcode-project en documentatie (#33)"
-    },
-    {
-     "sha": "1000380",
-     "date": "2026-09-07T04:49:13Z",
-     "message": "Tooling: unit-tests (vitest), ESLint en CI op GitHub Actions (#32)"
-    },
-    {
-     "sha": "d866330",
-     "date": "2026-09-07T04:39:19Z",
-     "message": "Beveiliging: rollen alleen door beheerder, login en limiet op AI-endpoints (#31)"
-    },
-    {
-     "sha": "c93ed78",
-     "date": "2026-09-07T04:10:02Z",
-     "message": "Workoutdetail: lange titel kort af, menu blijft op één regel (#30)"
-    },
-    {
-     "sha": "3c88bf9",
-     "date": "2026-09-07T04:09:36Z",
-     "message": "Workoutdetail: lange titel kort af, menu blijft op één regel"
     }
    ],
    "missions_in_commits": [],
@@ -427,17 +404,18 @@
    "has_package_json": true
   },
   "FitnessFlow": {
-   "checked_at": "2026-09-15T03:42:17.955Z",
-   "exists": false
+   "checked_at": "2026-09-16T07:43:28.063Z",
+   "exists": null,
+   "note": "niet zichtbaar: privé repo (zet FLEET_TOKEN als secret) of bestaat niet"
   },
   "workout-timer": {
-   "checked_at": "2026-09-15T03:42:18.144Z",
+   "checked_at": "2026-09-16T07:43:28.187Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-01-23T07:38:49Z",
-   "days_since_push": 235,
+   "days_since_push": 236,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -456,13 +434,13 @@
    "has_package_json": true
   },
   "exercise-database": {
-   "checked_at": "2026-09-15T03:42:19.680Z",
+   "checked_at": "2026-09-16T07:43:29.900Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-17T07:07:47Z",
-   "days_since_push": 151,
+   "days_since_push": 152,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -475,13 +453,13 @@
    "has_package_json": false
   },
   "foodscan": {
-   "checked_at": "2026-09-15T03:42:20.923Z",
+   "checked_at": "2026-09-16T07:43:31.280Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-03-14T21:02:03Z",
-   "days_since_push": 184,
+   "days_since_push": 185,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -500,26 +478,32 @@
    "has_package_json": true
   },
   "Gr8ful": {
-   "checked_at": "2026-09-15T03:42:22.209Z",
+   "checked_at": "2026-09-16T07:43:32.681Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-01-02T04:52:35Z",
-   "days_since_push": 256,
+   "days_since_push": 257,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
-   "error": "GitHub API 409 voor Gr8ful/commits?sha=main&since=2026-09-07T03:42:14.834Z&per_page=50: {\"message\":\"Git Repository is empty.\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#list-commits\",\"status\":\"409\"}"
+   "recent_commits": [],
+   "missions_in_commits": [],
+   "has_readme": false,
+   "has_ci": false,
+   "has_firestore_rules": false,
+   "has_storage_rules": false,
+   "has_package_json": false
   },
   "penpotmcp": {
-   "checked_at": "2026-09-15T03:42:22.838Z",
+   "checked_at": "2026-09-16T07:43:33.870Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-08-15T18:18:28Z",
-   "days_since_push": 30,
+   "days_since_push": 32,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -532,13 +516,13 @@
    "has_package_json": false
   },
   "penpot-slots": {
-   "checked_at": "2026-09-15T03:42:24.020Z",
+   "checked_at": "2026-09-16T07:43:35.148Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-08-19T07:26:02Z",
-   "days_since_push": 27,
+   "days_since_push": 28,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -551,13 +535,13 @@
    "has_package_json": true
   },
   "penpot-broken-component-repair": {
-   "checked_at": "2026-09-15T03:42:25.254Z",
+   "checked_at": "2026-09-16T07:43:36.373Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-08-21T19:43:27Z",
-   "days_since_push": 24,
+   "days_since_push": 26,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -570,13 +554,13 @@
    "has_package_json": true
   },
   "penpot-tokens-merge": {
-   "checked_at": "2026-09-15T03:42:26.482Z",
+   "checked_at": "2026-09-16T07:43:38.903Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-07-06T10:23:17Z",
-   "days_since_push": 71,
+   "days_since_push": 72,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -589,13 +573,13 @@
    "has_package_json": true
   },
   "penpot-material-theme-builder": {
-   "checked_at": "2026-09-15T03:42:27.657Z",
+   "checked_at": "2026-09-16T07:43:40.121Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-23T04:40:32Z",
-   "days_since_push": 145,
+   "days_since_push": 146,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -608,26 +592,32 @@
    "has_package_json": true
   },
   "penpot-to-html": {
-   "checked_at": "2026-09-15T03:42:28.740Z",
+   "checked_at": "2026-09-16T07:43:41.425Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-22T19:01:00Z",
-   "days_since_push": 145,
+   "days_since_push": 147,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
-   "error": "GitHub API 409 voor penpot-to-html/commits?sha=main&since=2026-09-07T03:42:14.834Z&per_page=50: {\"message\":\"Git Repository is empty.\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#list-commits\",\"status\":\"409\"}"
+   "recent_commits": [],
+   "missions_in_commits": [],
+   "has_readme": false,
+   "has_ci": false,
+   "has_firestore_rules": false,
+   "has_storage_rules": false,
+   "has_package_json": false
   },
   "penpot-design-assistant": {
-   "checked_at": "2026-09-15T03:42:29.352Z",
+   "checked_at": "2026-09-16T07:43:42.763Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-20T18:58:51Z",
-   "days_since_push": 147,
+   "days_since_push": 149,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -640,13 +630,13 @@
    "has_package_json": true
   },
   "Pen2AE": {
-   "checked_at": "2026-09-15T03:42:30.616Z",
+   "checked_at": "2026-09-16T07:43:43.928Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-09-21T19:14:15Z",
-   "days_since_push": 358,
+   "days_since_push": 360,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -659,13 +649,13 @@
    "has_package_json": true
   },
   "material-symbols-font-plugin": {
-   "checked_at": "2026-09-15T03:42:31.880Z",
+   "checked_at": "2026-09-16T07:43:45.094Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-20T17:37:04Z",
-   "days_since_push": 147,
+   "days_since_push": 149,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -678,13 +668,13 @@
    "has_package_json": false
   },
   "Token-Checker": {
-   "checked_at": "2026-09-15T03:42:32.957Z",
+   "checked_at": "2026-09-16T07:43:46.337Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-17T19:51:50Z",
-   "days_since_push": 150,
+   "days_since_push": 151,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -697,13 +687,13 @@
    "has_package_json": false
   },
   "designpartner": {
-   "checked_at": "2026-09-15T03:42:34.142Z",
+   "checked_at": "2026-09-16T07:43:47.521Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-09-02T04:12:35Z",
-   "days_since_push": 13,
+   "days_since_push": 14,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -722,21 +712,23 @@
    "has_package_json": false
   },
   "bold700-site": {
-   "checked_at": "2026-09-15T03:42:35.296Z",
-   "exists": false
+   "checked_at": "2026-09-16T07:43:48.858Z",
+   "exists": null,
+   "note": "niet zichtbaar: privé repo (zet FLEET_TOKEN als secret) of bestaat niet"
   },
   "bold700-ux-review-app": {
-   "checked_at": "2026-09-15T03:42:35.396Z",
-   "exists": false
+   "checked_at": "2026-09-16T07:43:48.968Z",
+   "exists": null,
+   "note": "niet zichtbaar: privé repo (zet FLEET_TOKEN als secret) of bestaat niet"
   },
   "bold700-ux-reviews": {
-   "checked_at": "2026-09-15T03:42:35.510Z",
+   "checked_at": "2026-09-16T07:43:49.073Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-07-27T10:04:59Z",
-   "days_since_push": 50,
+   "days_since_push": 51,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -755,13 +747,13 @@
    "has_package_json": false
   },
   "bold700-design-system": {
-   "checked_at": "2026-09-15T03:42:36.735Z",
+   "checked_at": "2026-09-16T07:43:50.388Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-20T07:11:42Z",
-   "days_since_push": 148,
+   "days_since_push": 149,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -774,13 +766,13 @@
    "has_package_json": false
   },
   "amp-design-system": {
-   "checked_at": "2026-09-15T03:42:37.875Z",
+   "checked_at": "2026-09-16T07:43:51.541Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-30T12:43:58Z",
-   "days_since_push": 138,
+   "days_since_push": 139,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -793,13 +785,13 @@
    "has_package_json": true
   },
   "jonathan-style-guide": {
-   "checked_at": "2026-09-15T03:42:39.000Z",
+   "checked_at": "2026-09-16T07:43:52.786Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-05-04T03:39:42Z",
-   "days_since_push": 134,
+   "days_since_push": 135,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -818,13 +810,13 @@
    "has_package_json": false
   },
   "website-leads": {
-   "checked_at": "2026-09-15T03:42:40.144Z",
+   "checked_at": "2026-09-16T07:43:54.062Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-06-12T04:21:47Z",
-   "days_since_push": 95,
+   "days_since_push": 96,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -843,13 +835,13 @@
    "has_package_json": false
   },
   "daily": {
-   "checked_at": "2026-09-15T03:42:41.243Z",
+   "checked_at": "2026-09-16T07:43:55.433Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-08-25T04:28:35Z",
-   "days_since_push": 21,
+   "days_since_push": 22,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -868,13 +860,13 @@
    "has_package_json": false
   },
   "cv": {
-   "checked_at": "2026-09-15T03:42:42.502Z",
+   "checked_at": "2026-09-16T07:43:56.606Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-05-30T19:06:14Z",
-   "days_since_push": 472,
+   "days_since_push": 474,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -887,13 +879,13 @@
    "has_package_json": true
   },
   "privacy": {
-   "checked_at": "2026-09-15T03:42:43.641Z",
+   "checked_at": "2026-09-16T07:43:57.817Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-05-05T04:17:41Z",
-   "days_since_push": 133,
+   "days_since_push": 134,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -912,13 +904,13 @@
    "has_package_json": false
   },
   "icns": {
-   "checked_at": "2026-09-15T03:42:44.762Z",
+   "checked_at": "2026-09-16T07:43:59.010Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-05T21:21:07Z",
-   "days_since_push": 162,
+   "days_since_push": 163,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -931,13 +923,13 @@
    "has_package_json": false
   },
   "iKons": {
-   "checked_at": "2026-09-15T03:42:45.802Z",
+   "checked_at": "2026-09-16T07:44:00.016Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-09-21T12:51:54Z",
-   "days_since_push": 359,
+   "days_since_push": 360,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -956,26 +948,32 @@
    "has_package_json": true
   },
   "Fonticon": {
-   "checked_at": "2026-09-15T03:42:46.915Z",
+   "checked_at": "2026-09-16T07:44:01.322Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-09-19T06:42:42Z",
-   "days_since_push": 361,
+   "days_since_push": 362,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
-   "error": "GitHub API 409 voor Fonticon/commits?sha=main&since=2026-09-07T03:42:14.834Z&per_page=50: {\"message\":\"Git Repository is empty.\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#list-commits\",\"status\":\"409\"}"
+   "recent_commits": [],
+   "missions_in_commits": [],
+   "has_readme": false,
+   "has_ci": false,
+   "has_firestore_rules": false,
+   "has_storage_rules": false,
+   "has_package_json": false
   },
   "vastgoedagent": {
-   "checked_at": "2026-09-15T03:42:47.555Z",
+   "checked_at": "2026-09-16T07:44:02.521Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "claude/property-investment-200k-ujv5dn",
    "pushed_at": "2026-09-09T11:56:06Z",
-   "days_since_push": 6,
+   "days_since_push": 7,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -1024,13 +1022,13 @@
    "has_package_json": false
   },
   "margot-schuijff": {
-   "checked_at": "2026-09-15T03:42:48.688Z",
+   "checked_at": "2026-09-16T07:44:03.871Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-05-28T19:38:40Z",
-   "days_since_push": 109,
+   "days_since_push": 111,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -1049,13 +1047,13 @@
    "has_package_json": false
   },
   "ambachtelijke-bakker": {
-   "checked_at": "2026-09-15T03:42:49.774Z",
+   "checked_at": "2026-09-16T07:44:05.185Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-25T06:53:14Z",
-   "days_since_push": 143,
+   "days_since_push": 144,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -1074,13 +1072,13 @@
    "has_package_json": false
   },
   "aalo-opleiding": {
-   "checked_at": "2026-09-15T03:42:50.876Z",
+   "checked_at": "2026-09-16T07:44:06.408Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-07-07T21:27:33Z",
-   "days_since_push": 69,
+   "days_since_push": 70,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -1099,13 +1097,13 @@
    "has_package_json": false
   },
   "motorklant": {
-   "checked_at": "2026-09-15T03:42:52.004Z",
+   "checked_at": "2026-09-16T07:44:07.767Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-05-31T15:13:18Z",
-   "days_since_push": 472,
+   "days_since_push": 473,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -1118,13 +1116,13 @@
    "has_package_json": true
   },
   "motodash": {
-   "checked_at": "2026-09-15T03:42:53.084Z",
+   "checked_at": "2026-09-16T07:44:09.228Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-06-22T06:18:30Z",
-   "days_since_push": 450,
+   "days_since_push": 451,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -1137,26 +1135,32 @@
    "has_package_json": false
   },
   "sauwell": {
-   "checked_at": "2026-09-15T03:42:54.153Z",
+   "checked_at": "2026-09-16T07:44:10.421Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-07-16T08:32:03Z",
-   "days_since_push": 426,
+   "days_since_push": 427,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
-   "error": "GitHub API 409 voor sauwell/commits?sha=main&since=2026-09-07T03:42:14.834Z&per_page=50: {\"message\":\"Git Repository is empty.\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#list-commits\",\"status\":\"409\"}"
+   "recent_commits": [],
+   "missions_in_commits": [],
+   "has_readme": false,
+   "has_ci": false,
+   "has_firestore_rules": false,
+   "has_storage_rules": false,
+   "has_package_json": false
   },
   "biggiewebsite": {
-   "checked_at": "2026-09-15T03:42:54.716Z",
+   "checked_at": "2026-09-16T07:44:11.594Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-03-09T19:51:48Z",
-   "days_since_push": 189,
+   "days_since_push": 190,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -1175,13 +1179,13 @@
    "has_package_json": false
   },
   "Biggie": {
-   "checked_at": "2026-09-15T03:42:55.827Z",
+   "checked_at": "2026-09-16T07:44:12.906Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-05-18T17:45:31Z",
-   "days_since_push": 484,
+   "days_since_push": 486,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -1200,13 +1204,13 @@
    "has_package_json": false
   },
   "leenlog": {
-   "checked_at": "2026-09-15T03:42:57.420Z",
+   "checked_at": "2026-09-16T07:44:14.088Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-09-13T15:00:30Z",
-   "days_since_push": 2,
+   "days_since_push": 3,
    "open_issues": 1,
    "open_prs": [
     {
@@ -1214,7 +1218,7 @@
      "title": "WIP: opzet inkomstenplan (structuur + profiel)",
      "draft": false,
      "branch": "claude/agent-income-plan-czul52",
-     "age_days": 14,
+     "age_days": 15,
      "url": "https://github.com/bold700/leenlog/pull/1"
     }
    ],
@@ -1228,13 +1232,13 @@
    "has_package_json": true
   },
   "uurwerk": {
-   "checked_at": "2026-09-15T03:42:58.538Z",
+   "checked_at": "2026-09-16T07:44:15.374Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-07-07T16:17:02Z",
-   "days_since_push": 69,
+   "days_since_push": 71,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -1253,13 +1257,13 @@
    "has_package_json": true
   },
   "urenregistratie": {
-   "checked_at": "2026-09-15T03:42:59.677Z",
+   "checked_at": "2026-09-16T07:44:16.956Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-14T03:38:43Z",
-   "days_since_push": 154,
+   "days_since_push": 155,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -1272,13 +1276,13 @@
    "has_package_json": true
   },
   "planningregistratie": {
-   "checked_at": "2026-09-15T03:43:00.778Z",
+   "checked_at": "2026-09-16T07:44:18.275Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-08-15T18:18:26Z",
-   "days_since_push": 30,
+   "days_since_push": 32,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -1291,13 +1295,13 @@
    "has_package_json": true
   },
   "RendementTool": {
-   "checked_at": "2026-09-15T03:43:02.026Z",
+   "checked_at": "2026-09-16T07:44:19.512Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-10-08T08:46:50Z",
-   "days_since_push": 342,
+   "days_since_push": 343,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -1310,13 +1314,13 @@
    "has_package_json": true
   },
   "opero": {
-   "checked_at": "2026-09-15T03:43:03.187Z",
+   "checked_at": "2026-09-16T07:44:20.664Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-06-07T14:21:14Z",
-   "days_since_push": 100,
+   "days_since_push": 101,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -1335,30 +1339,37 @@
    "has_package_json": true
   },
   "cadence": {
-   "checked_at": "2026-09-15T03:43:04.390Z",
-   "exists": false
+   "checked_at": "2026-09-16T07:44:21.937Z",
+   "exists": null,
+   "note": "niet zichtbaar: privé repo (zet FLEET_TOKEN als secret) of bestaat niet"
   },
   "bespaarbot": {
-   "checked_at": "2026-09-15T03:43:04.484Z",
+   "checked_at": "2026-09-16T07:44:22.076Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-07-28T17:09:40Z",
-   "days_since_push": 413,
+   "days_since_push": 415,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
-   "error": "GitHub API 409 voor bespaarbot/commits?sha=main&since=2026-09-07T03:42:14.834Z&per_page=50: {\"message\":\"Git Repository is empty.\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#list-commits\",\"status\":\"409\"}"
+   "recent_commits": [],
+   "missions_in_commits": [],
+   "has_readme": false,
+   "has_ci": false,
+   "has_firestore_rules": false,
+   "has_storage_rules": false,
+   "has_package_json": false
   },
   "Walletify": {
-   "checked_at": "2026-09-15T03:43:05.066Z",
+   "checked_at": "2026-09-16T07:44:23.185Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-05-29T15:25:09Z",
-   "days_since_push": 474,
+   "days_since_push": 475,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -1371,13 +1382,13 @@
    "has_package_json": false
   },
   "fix-it-all": {
-   "checked_at": "2026-09-15T03:43:06.178Z",
+   "checked_at": "2026-09-16T07:44:24.320Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-06-09T04:27:38Z",
-   "days_since_push": 98,
+   "days_since_push": 99,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
