@@ -1,7 +1,18 @@
 {
- "generated_at": "2026-09-16T07:43:24.277Z",
+ "generated_at": "2026-09-17T07:43:19.732Z",
  "source": "GitHub API via scripts/build-snapshot.mjs",
  "repos": [
+  {
+   "name": "hq",
+   "description": "",
+   "language": "JavaScript",
+   "homepage": "https://hq-zeta-lilac.vercel.app",
+   "pushed_at": "2026-09-16T07:44:26Z",
+   "private": false,
+   "archived": false,
+   "open_issues": 2,
+   "stars": 0
+  },
   {
    "name": "LiftLog",
    "description": "",
@@ -11,17 +22,6 @@
    "private": false,
    "archived": false,
    "open_issues": 3,
-   "stars": 0
-  },
-  {
-   "name": "hq",
-   "description": "",
-   "language": "JavaScript",
-   "homepage": "https://hq-zeta-lilac.vercel.app",
-   "pushed_at": "2026-09-15T03:43:32Z",
-   "private": false,
-   "archived": false,
-   "open_issues": 2,
    "stars": 0
   },
   {
