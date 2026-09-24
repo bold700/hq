@@ -1,14 +1,14 @@
 {
- "generated_at": "2026-09-23T07:48:39.815Z",
+ "generated_at": "2026-09-24T07:38:59.319Z",
  "source": "scripts/build-fleet.mjs (GitHub Actions)",
  "projects": {
   "hq": {
-   "checked_at": "2026-09-23T07:47:39.334Z",
+   "checked_at": "2026-09-24T07:37:57.677Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
-   "pushed_at": "2026-09-22T07:46:13Z",
+   "pushed_at": "2026-09-23T07:48:40Z",
    "days_since_push": 1,
    "open_issues": 2,
    "open_prs": [
@@ -17,7 +17,7 @@
      "title": "Verplaats Fonticon naar penpot-cluster",
      "draft": true,
      "branch": "claude/upbeat-fermi-0nqz20",
-     "age_days": 10,
+     "age_days": 11,
      "url": "https://github.com/bold700/hq/pull/2"
     },
     {
@@ -25,7 +25,7 @@
      "title": "Verplaats Fonticon naar penpot-cluster",
      "draft": true,
      "branch": "claude/upbeat-fermi-2vo3z7",
-     "age_days": 10,
+     "age_days": 11,
      "url": "https://github.com/bold700/hq/pull/1"
     }
    ],
@@ -33,10 +33,15 @@
     "name": "Vloot-snapshot (feiten voor de patrouille)",
     "status": "in_progress",
     "conclusion": null,
-    "at": "2026-09-23T07:47:32Z",
-    "url": "https://github.com/bold700/hq/actions/runs/35833574886"
+    "at": "2026-09-24T07:37:49Z",
+    "url": "https://github.com/bold700/hq/actions/runs/35970647218"
    },
    "recent_commits": [
+    {
+     "sha": "e3d29d4",
+     "date": "2026-09-23T07:48:39Z",
+     "message": "Vloot-snapshot 2026-09-23"
+    },
     {
      "sha": "19a4537",
      "date": "2026-09-22T07:46:12Z",
@@ -81,12 +86,12 @@
    "has_package_json": false
   },
   "LiftLog": {
-   "checked_at": "2026-09-23T07:47:41.199Z",
+   "checked_at": "2026-09-24T07:37:59.461Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
-   "pushed_at": "2026-09-23T07:35:50Z",
+   "pushed_at": "2026-09-24T04:34:40Z",
    "days_since_push": 0,
    "open_issues": 3,
    "open_prs": [
@@ -95,7 +100,7 @@
      "title": "security: audit firestore/storage rules, uitbreiden rules-tests (m-003)",
      "draft": true,
      "branch": "claude/busy-ritchie-px6yxz",
-     "age_days": 9,
+     "age_days": 10,
      "url": "https://github.com/bold700/LiftLog/pull/51"
     },
     {
@@ -103,7 +108,7 @@
      "title": "docs: aanbod-analyse (m-004) — wie betaalt LiftLog, en waarvoor",
      "draft": true,
      "branch": "claude/busy-ritchie-yizh3s",
-     "age_days": 9,
+     "age_days": 10,
      "url": "https://github.com/bold700/LiftLog/pull/50"
     },
     {
@@ -111,7 +116,7 @@
      "title": "README: vermeld bold700 HQ als onderdeel",
      "draft": true,
      "branch": "claude/loving-volta-zewawa",
-     "age_days": 10,
+     "age_days": 11,
      "url": "https://github.com/bold700/LiftLog/pull/47"
     }
    ],
@@ -119,10 +124,70 @@
     "name": "CI",
     "status": "completed",
     "conclusion": "success",
-    "at": "2026-09-23T07:36:52Z",
-    "url": "https://github.com/bold700/LiftLog/actions/runs/35832535178"
+    "at": "2026-09-24T04:36:21Z",
+    "url": "https://github.com/bold700/LiftLog/actions/runs/35956227677"
    },
    "recent_commits": [
+    {
+     "sha": "22e0934",
+     "date": "2026-09-24T04:34:27Z",
+     "message": "Security: cross-studio lek in Storage-regels + rate limit op meldingen (#178)"
+    },
+    {
+     "sha": "57a38f9",
+     "date": "2026-09-24T04:14:24Z",
+     "message": "Fix: dubbele veilige-zone-marge boven elke pagina op mobiel (#177)"
+    },
+    {
+     "sha": "5523d70",
+     "date": "2026-09-24T03:45:51Z",
+     "message": "Fix: scroll blijft soms vastzitten na aanraking van bovenbalk/navigatiebalk (#176)"
+    },
+    {
+     "sha": "7736cf0",
+     "date": "2026-09-24T03:32:35Z",
+     "message": "Fix: iOS-statusbalk kan over content vallen op \"Zet op beginscherm\"-app (#175)"
+    },
+    {
+     "sha": "8f7fb8b",
+     "date": "2026-09-24T03:00:08Z",
+     "message": "Fix: Bekijk als toont alle workouts + Training afronden viel achter zwevende iconen (#174)"
+    },
+    {
+     "sha": "5abdc3d",
+     "date": "2026-09-23T20:55:53Z",
+     "message": "Fix: bovenbalk overlapt statusbalk + oefeningen-zoekfunctie vindt te weinig (#173)"
+    },
+    {
+     "sha": "59809dc",
+     "date": "2026-09-23T18:13:38Z",
+     "message": "Camerabeeld bij scannen (QR/barcode) toont nu echt het camerabeeld (#172)"
+    },
+    {
+     "sha": "7951c6d",
+     "date": "2026-09-23T17:20:19Z",
+     "message": "Bodyscan: QR-code van de weegschaal uitlezen i.p.v. alleen foto's (#171)"
+    },
+    {
+     "sha": "66d00f6",
+     "date": "2026-09-23T17:05:58Z",
+     "message": "Mobiel: navigatiebalk en +-knop blijven staan tijdens scrollen (#170)"
+    },
+    {
+     "sha": "76e765f",
+     "date": "2026-09-23T15:38:19Z",
+     "message": "Workout verwijderen werkt weer (Firestore-regel) en toont een melding bij een fout (#169)"
+    },
+    {
+     "sha": "fda539a",
+     "date": "2026-09-23T15:29:40Z",
+     "message": "Workouts: kiezen hoe je begint, pas opslaan bij Opslaan, vegen voor bewerken/verwijderen (#168)"
+    },
+    {
+     "sha": "1f5e401",
+     "date": "2026-09-23T15:12:09Z",
+     "message": "Workouts: aanmaken via het +-menu, lege start, 7-stappenformulier als optie (#167)"
+    },
     {
      "sha": "22aa0b3",
      "date": "2026-09-23T07:35:39Z",
@@ -312,66 +377,6 @@
      "sha": "35fd58b",
      "date": "2026-09-22T05:10:41Z",
      "message": "Terugpijl naar bovenbalk, echte back-navigatie in Workouts (#129)"
-    },
-    {
-     "sha": "ba92b86",
-     "date": "2026-09-22T04:16:06Z",
-     "message": "Desktop avatar-item: kleiner en exact boven Uitloggen (#128)"
-    },
-    {
-     "sha": "fa0f450",
-     "date": "2026-09-22T04:03:01Z",
-     "message": "Desktop: avatar-item exact zo uitgelijnd als de andere zijbalk-items (#127)"
-    },
-    {
-     "sha": "cc59155",
-     "date": "2026-09-22T03:51:43Z",
-     "message": "Desktop: avatar-menu ook in de zijbalk, boven Uitloggen (#126)"
-    },
-    {
-     "sha": "930a223",
-     "date": "2026-09-22T03:31:34Z",
-     "message": "Training-gif, Workouts-sortering en \"Bekijk als\" via profielmenu (#125)"
-    },
-    {
-     "sha": "67d40b5",
-     "date": "2026-09-21T19:29:19Z",
-     "message": "Lessen: omschrijving per lesoort in de boekingsdialoog (#124)"
-    },
-    {
-     "sha": "dd62e9b",
-     "date": "2026-09-21T19:12:33Z",
-     "message": "Voeding: volledig vertaald + accordion toont voorproefje voedingswaarden"
-    },
-    {
-     "sha": "951b943",
-     "date": "2026-09-21T18:09:40Z",
-     "message": "Beheer: ruimtes als beheerde lijst i.p.v. vrije tekst"
-    },
-    {
-     "sha": "73ef1a6",
-     "date": "2026-09-21T16:44:33Z",
-     "message": "Fix: typfout in ruimtenaam (\"Boven\" vs \"boven\") gaf dubbele filterpil"
-    },
-    {
-     "sha": "28414a6",
-     "date": "2026-09-21T16:39:24Z",
-     "message": "Fix: keuzebalk-label breekt af bij twee woorden (\"Mijn dag\")"
-    },
-    {
-     "sha": "2125fb1",
-     "date": "2026-09-21T13:06:34Z",
-     "message": "Lessen: room-filter als losse pillen i.p.v. gedeelde keuzebalk"
-    },
-    {
-     "sha": "587e8cf",
-     "date": "2026-09-21T13:01:11Z",
-     "message": "Lessen: trainernaam op de lesrij en in de reserveer-dialoog"
-    },
-    {
-     "sha": "475862b",
-     "date": "2026-09-21T12:53:38Z",
-     "message": "Beheer: organisatie-instelling \"trainers mogen elkaars cliënten zien\""
     }
    ],
    "missions_in_commits": [],
@@ -382,18 +387,18 @@
    "has_package_json": true
   },
   "FitnessFlow": {
-   "checked_at": "2026-09-23T07:47:42.819Z",
+   "checked_at": "2026-09-24T07:38:01.227Z",
    "exists": null,
    "note": "niet zichtbaar: privé repo (zet FLEET_TOKEN als secret) of bestaat niet"
   },
   "workout-timer": {
-   "checked_at": "2026-09-23T07:47:42.963Z",
+   "checked_at": "2026-09-24T07:38:01.374Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-01-23T07:38:49Z",
-   "days_since_push": 243,
+   "days_since_push": 244,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -412,13 +417,13 @@
    "has_package_json": true
   },
   "exercise-database": {
-   "checked_at": "2026-09-23T07:47:44.386Z",
+   "checked_at": "2026-09-24T07:38:02.768Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-17T07:07:47Z",
-   "days_since_push": 159,
+   "days_since_push": 160,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -431,13 +436,13 @@
    "has_package_json": false
   },
   "foodscan": {
-   "checked_at": "2026-09-23T07:47:45.664Z",
+   "checked_at": "2026-09-24T07:38:03.864Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-03-14T21:02:03Z",
-   "days_since_push": 192,
+   "days_since_push": 193,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -456,13 +461,13 @@
    "has_package_json": true
   },
   "Gr8ful": {
-   "checked_at": "2026-09-23T07:47:47.024Z",
+   "checked_at": "2026-09-24T07:38:05.189Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-01-02T04:52:35Z",
-   "days_since_push": 264,
+   "days_since_push": 265,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -475,13 +480,13 @@
    "has_package_json": false
   },
   "penpotmcp": {
-   "checked_at": "2026-09-23T07:47:48.431Z",
+   "checked_at": "2026-09-24T07:38:06.588Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-08-15T18:18:28Z",
-   "days_since_push": 39,
+   "days_since_push": 40,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -494,13 +499,13 @@
    "has_package_json": false
   },
   "penpot-slots": {
-   "checked_at": "2026-09-23T07:47:49.750Z",
+   "checked_at": "2026-09-24T07:38:07.841Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-08-19T07:26:02Z",
-   "days_since_push": 35,
+   "days_since_push": 36,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -513,7 +518,7 @@
    "has_package_json": true
   },
   "penpot-broken-component-repair": {
-   "checked_at": "2026-09-23T07:47:51.057Z",
+   "checked_at": "2026-09-24T07:38:09.328Z",
    "exists": true,
    "private": false,
    "archived": false,
@@ -532,13 +537,13 @@
    "has_package_json": true
   },
   "penpot-tokens-merge": {
-   "checked_at": "2026-09-23T07:47:52.312Z",
+   "checked_at": "2026-09-24T07:38:10.770Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-07-06T10:23:17Z",
-   "days_since_push": 79,
+   "days_since_push": 80,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -551,13 +556,13 @@
    "has_package_json": true
   },
   "penpot-material-theme-builder": {
-   "checked_at": "2026-09-23T07:47:53.694Z",
+   "checked_at": "2026-09-24T07:38:12.128Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-23T04:40:32Z",
-   "days_since_push": 153,
+   "days_since_push": 154,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -570,13 +575,13 @@
    "has_package_json": true
   },
   "penpot-to-html": {
-   "checked_at": "2026-09-23T07:47:54.969Z",
+   "checked_at": "2026-09-24T07:38:13.503Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-22T19:01:00Z",
-   "days_since_push": 154,
+   "days_since_push": 155,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -589,13 +594,13 @@
    "has_package_json": false
   },
   "penpot-design-assistant": {
-   "checked_at": "2026-09-23T07:47:56.282Z",
+   "checked_at": "2026-09-24T07:38:14.675Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-20T18:58:51Z",
-   "days_since_push": 156,
+   "days_since_push": 157,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -608,13 +613,13 @@
    "has_package_json": true
   },
   "Pen2AE": {
-   "checked_at": "2026-09-23T07:47:57.616Z",
+   "checked_at": "2026-09-24T07:38:16.158Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-09-21T19:14:15Z",
-   "days_since_push": 367,
+   "days_since_push": 368,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -627,13 +632,13 @@
    "has_package_json": true
   },
   "material-symbols-font-plugin": {
-   "checked_at": "2026-09-23T07:47:58.847Z",
+   "checked_at": "2026-09-24T07:38:17.601Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-20T17:37:04Z",
-   "days_since_push": 156,
+   "days_since_push": 157,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -646,13 +651,13 @@
    "has_package_json": false
   },
   "Token-Checker": {
-   "checked_at": "2026-09-23T07:48:00.117Z",
+   "checked_at": "2026-09-24T07:38:18.776Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-17T19:51:50Z",
-   "days_since_push": 158,
+   "days_since_push": 159,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -665,13 +670,13 @@
    "has_package_json": false
   },
   "designpartner": {
-   "checked_at": "2026-09-23T07:48:01.252Z",
+   "checked_at": "2026-09-24T07:38:19.926Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-09-02T04:12:35Z",
-   "days_since_push": 21,
+   "days_since_push": 22,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -690,23 +695,23 @@
    "has_package_json": false
   },
   "bold700-site": {
-   "checked_at": "2026-09-23T07:48:02.486Z",
+   "checked_at": "2026-09-24T07:38:21.442Z",
    "exists": null,
    "note": "niet zichtbaar: privé repo (zet FLEET_TOKEN als secret) of bestaat niet"
   },
   "bold700-ux-review-app": {
-   "checked_at": "2026-09-23T07:48:02.601Z",
+   "checked_at": "2026-09-24T07:38:21.569Z",
    "exists": null,
    "note": "niet zichtbaar: privé repo (zet FLEET_TOKEN als secret) of bestaat niet"
   },
   "bold700-ux-reviews": {
-   "checked_at": "2026-09-23T07:48:02.742Z",
+   "checked_at": "2026-09-24T07:38:21.682Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-07-27T10:04:59Z",
-   "days_since_push": 58,
+   "days_since_push": 59,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -725,13 +730,13 @@
    "has_package_json": false
   },
   "bold700-design-system": {
-   "checked_at": "2026-09-23T07:48:04.036Z",
+   "checked_at": "2026-09-24T07:38:23.051Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-20T07:11:42Z",
-   "days_since_push": 156,
+   "days_since_push": 157,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -744,13 +749,13 @@
    "has_package_json": false
   },
   "amp-design-system": {
-   "checked_at": "2026-09-23T07:48:05.295Z",
+   "checked_at": "2026-09-24T07:38:24.497Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-30T12:43:58Z",
-   "days_since_push": 146,
+   "days_since_push": 147,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -763,13 +768,13 @@
    "has_package_json": true
   },
   "jonathan-style-guide": {
-   "checked_at": "2026-09-23T07:48:06.588Z",
+   "checked_at": "2026-09-24T07:38:25.833Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-05-04T03:39:42Z",
-   "days_since_push": 142,
+   "days_since_push": 143,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -788,13 +793,13 @@
    "has_package_json": false
   },
   "website-leads": {
-   "checked_at": "2026-09-23T07:48:07.864Z",
+   "checked_at": "2026-09-24T07:38:27.068Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-06-12T04:21:47Z",
-   "days_since_push": 103,
+   "days_since_push": 104,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -813,13 +818,13 @@
    "has_package_json": false
   },
   "daily": {
-   "checked_at": "2026-09-23T07:48:09.278Z",
+   "checked_at": "2026-09-24T07:38:28.278Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-08-25T04:28:35Z",
-   "days_since_push": 29,
+   "days_since_push": 30,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -838,13 +843,13 @@
    "has_package_json": false
   },
   "cv": {
-   "checked_at": "2026-09-23T07:48:10.610Z",
+   "checked_at": "2026-09-24T07:38:29.581Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-05-30T19:06:14Z",
-   "days_since_push": 481,
+   "days_since_push": 482,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -857,13 +862,13 @@
    "has_package_json": true
   },
   "privacy": {
-   "checked_at": "2026-09-23T07:48:11.897Z",
+   "checked_at": "2026-09-24T07:38:30.695Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-05-05T04:17:41Z",
-   "days_since_push": 141,
+   "days_since_push": 142,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -882,13 +887,13 @@
    "has_package_json": false
   },
   "icns": {
-   "checked_at": "2026-09-23T07:48:13.458Z",
+   "checked_at": "2026-09-24T07:38:31.874Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-05T21:21:07Z",
-   "days_since_push": 170,
+   "days_since_push": 171,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -901,13 +906,13 @@
    "has_package_json": false
   },
   "iKons": {
-   "checked_at": "2026-09-23T07:48:14.777Z",
+   "checked_at": "2026-09-24T07:38:33.018Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-09-21T12:51:54Z",
-   "days_since_push": 367,
+   "days_since_push": 368,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -926,13 +931,13 @@
    "has_package_json": true
   },
   "Fonticon": {
-   "checked_at": "2026-09-23T07:48:16.052Z",
+   "checked_at": "2026-09-24T07:38:34.331Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-09-19T06:42:42Z",
-   "days_since_push": 369,
+   "days_since_push": 370,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -945,13 +950,13 @@
    "has_package_json": false
   },
   "vastgoedagent": {
-   "checked_at": "2026-09-23T07:48:17.272Z",
+   "checked_at": "2026-09-24T07:38:35.503Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "claude/property-investment-200k-ujv5dn",
    "pushed_at": "2026-09-09T11:56:06Z",
-   "days_since_push": 14,
+   "days_since_push": 15,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -964,7 +969,7 @@
    "has_package_json": false
   },
   "margot-schuijff": {
-   "checked_at": "2026-09-23T07:48:18.447Z",
+   "checked_at": "2026-09-24T07:38:36.661Z",
    "exists": true,
    "private": false,
    "archived": false,
@@ -989,13 +994,13 @@
    "has_package_json": false
   },
   "ambachtelijke-bakker": {
-   "checked_at": "2026-09-23T07:48:19.660Z",
+   "checked_at": "2026-09-24T07:38:38.036Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-25T06:53:14Z",
-   "days_since_push": 151,
+   "days_since_push": 152,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -1014,13 +1019,13 @@
    "has_package_json": false
   },
   "aalo-opleiding": {
-   "checked_at": "2026-09-23T07:48:20.989Z",
+   "checked_at": "2026-09-24T07:38:39.532Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-07-07T21:27:33Z",
-   "days_since_push": 77,
+   "days_since_push": 78,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -1039,13 +1044,13 @@
    "has_package_json": false
   },
   "motorklant": {
-   "checked_at": "2026-09-23T07:48:22.334Z",
+   "checked_at": "2026-09-24T07:38:40.696Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-05-31T15:13:18Z",
-   "days_since_push": 480,
+   "days_since_push": 481,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -1058,13 +1063,13 @@
    "has_package_json": true
   },
   "motodash": {
-   "checked_at": "2026-09-23T07:48:23.735Z",
+   "checked_at": "2026-09-24T07:38:41.934Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-06-22T06:18:30Z",
-   "days_since_push": 458,
+   "days_since_push": 459,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -1077,13 +1082,13 @@
    "has_package_json": false
   },
   "sauwell": {
-   "checked_at": "2026-09-23T07:48:24.914Z",
+   "checked_at": "2026-09-24T07:38:43.035Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-07-16T08:32:03Z",
-   "days_since_push": 434,
+   "days_since_push": 435,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -1096,13 +1101,13 @@
    "has_package_json": false
   },
   "biggiewebsite": {
-   "checked_at": "2026-09-23T07:48:25.973Z",
+   "checked_at": "2026-09-24T07:38:44.418Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-03-09T19:51:48Z",
-   "days_since_push": 197,
+   "days_since_push": 198,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -1121,13 +1126,13 @@
    "has_package_json": false
   },
   "Biggie": {
-   "checked_at": "2026-09-23T07:48:27.212Z",
+   "checked_at": "2026-09-24T07:38:45.610Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-05-18T17:45:31Z",
-   "days_since_push": 493,
+   "days_since_push": 494,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -1146,13 +1151,13 @@
    "has_package_json": false
   },
   "leenlog": {
-   "checked_at": "2026-09-23T07:48:28.347Z",
+   "checked_at": "2026-09-24T07:38:46.864Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-09-13T15:00:30Z",
-   "days_since_push": 10,
+   "days_since_push": 11,
    "open_issues": 1,
    "open_prs": [
     {
@@ -1160,7 +1165,7 @@
      "title": "WIP: opzet inkomstenplan (structuur + profiel)",
      "draft": false,
      "branch": "claude/agent-income-plan-czul52",
-     "age_days": 22,
+     "age_days": 23,
      "url": "https://github.com/bold700/leenlog/pull/1"
     }
    ],
@@ -1174,13 +1179,13 @@
    "has_package_json": true
   },
   "uurwerk": {
-   "checked_at": "2026-09-23T07:48:29.628Z",
+   "checked_at": "2026-09-24T07:38:48.156Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-07-07T16:17:02Z",
-   "days_since_push": 78,
+   "days_since_push": 79,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -1199,13 +1204,13 @@
    "has_package_json": true
   },
   "urenregistratie": {
-   "checked_at": "2026-09-23T07:48:30.805Z",
+   "checked_at": "2026-09-24T07:38:50.494Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-04-14T03:38:43Z",
-   "days_since_push": 162,
+   "days_since_push": 163,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -1218,13 +1223,13 @@
    "has_package_json": true
   },
   "planningregistratie": {
-   "checked_at": "2026-09-23T07:48:32.017Z",
+   "checked_at": "2026-09-24T07:38:51.779Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-08-15T18:18:26Z",
-   "days_since_push": 39,
+   "days_since_push": 40,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -1237,13 +1242,13 @@
    "has_package_json": true
   },
   "RendementTool": {
-   "checked_at": "2026-09-23T07:48:33.303Z",
+   "checked_at": "2026-09-24T07:38:53.015Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-10-08T08:46:50Z",
-   "days_since_push": 350,
+   "days_since_push": 351,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -1256,13 +1261,13 @@
    "has_package_json": true
   },
   "opero": {
-   "checked_at": "2026-09-23T07:48:34.712Z",
+   "checked_at": "2026-09-24T07:38:54.213Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-06-07T14:21:14Z",
-   "days_since_push": 108,
+   "days_since_push": 109,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
@@ -1281,18 +1286,18 @@
    "has_package_json": true
   },
   "cadence": {
-   "checked_at": "2026-09-23T07:48:35.955Z",
+   "checked_at": "2026-09-24T07:38:55.710Z",
    "exists": null,
    "note": "niet zichtbaar: privé repo (zet FLEET_TOKEN als secret) of bestaat niet"
   },
   "bespaarbot": {
-   "checked_at": "2026-09-23T07:48:36.070Z",
+   "checked_at": "2026-09-24T07:38:55.823Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-07-28T17:09:40Z",
-   "days_since_push": 422,
+   "days_since_push": 423,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -1305,13 +1310,13 @@
    "has_package_json": false
   },
   "Walletify": {
-   "checked_at": "2026-09-23T07:48:37.423Z",
+   "checked_at": "2026-09-24T07:38:56.987Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2025-05-29T15:25:09Z",
-   "days_since_push": 482,
+   "days_since_push": 483,
    "open_issues": 0,
    "open_prs": [],
    "ci": null,
@@ -1324,13 +1329,13 @@
    "has_package_json": false
   },
   "fix-it-all": {
-   "checked_at": "2026-09-23T07:48:38.567Z",
+   "checked_at": "2026-09-24T07:38:58.097Z",
    "exists": true,
    "private": false,
    "archived": false,
    "default_branch": "main",
    "pushed_at": "2026-06-09T04:27:38Z",
-   "days_since_push": 106,
+   "days_since_push": 107,
    "open_issues": 0,
    "open_prs": [],
    "ci": {
