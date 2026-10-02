@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-01T09:00:03.516Z",
+ "generated_at": "2026-10-02T08:35:22.797Z",
  "source": "GitHub API via scripts/build-snapshot.mjs",
  "repos": [
   {
@@ -7,10 +7,21 @@
    "description": "",
    "language": "TypeScript",
    "homepage": "https://lift-log-phi.vercel.app",
-   "pushed_at": "2026-10-01T08:59:28Z",
+   "pushed_at": "2026-10-02T07:06:58Z",
    "private": false,
    "archived": false,
-   "open_issues": 4,
+   "open_issues": 3,
+   "stars": 0
+  },
+  {
+   "name": "hq",
+   "description": "",
+   "language": "JavaScript",
+   "homepage": "https://hq-zeta-lilac.vercel.app",
+   "pushed_at": "2026-10-01T09:01:18Z",
+   "private": false,
+   "archived": false,
+   "open_issues": 2,
    "stars": 0
   },
   {
@@ -22,17 +33,6 @@
    "private": false,
    "archived": false,
    "open_issues": 0,
-   "stars": 0
-  },
-  {
-   "name": "hq",
-   "description": "",
-   "language": "JavaScript",
-   "homepage": "https://hq-zeta-lilac.vercel.app",
-   "pushed_at": "2026-09-30T08:38:57Z",
-   "private": false,
-   "archived": false,
-   "open_issues": 2,
    "stars": 0
   },
   {
